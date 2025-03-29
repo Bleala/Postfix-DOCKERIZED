@@ -2,7 +2,7 @@
 <!-- REMOVE START -->
 # Creating a Pull Request
 
-We use github actions to do automatic [semantic versioning](https://github.com/semantic-release/semantic-release), so please use the following nomenclature for the commit message according to the type of change:
+I use github/gitea actions to do automatic [semantic versioning](https://github.com/semantic-release/semantic-release), so please use the following nomenclature for the commit message according to the type of change:
 
 * Prefix with `feat:`, and it will trigger a minor version bump. 
 * Prefix with `fix:`, and it will trigger a patch version bump.
@@ -32,8 +32,8 @@ We use github actions to do automatic [semantic versioning](https://github.com/s
 
 ## Checklist:
 <!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
-<!--- If you're unsure about any of these, don't hesitate to ask. We're here to help! -->
+<!--- If you're unsure about any of these, don't hesitate to ask. I'm here to help! -->
 - [ ] My change requires a change to the documentation and I have updated the documentation accordingly.
 - [ ] My change adds a new configuration variable and I have updated the `.env.example` file accordingly.
 
-And lastly, many thanks for taking your time to help us improve this project !
+And lastly, many thanks for taking your time to help me improve this project !
