@@ -1,0 +1,72 @@
+name: Bug Report
+description: Report an issue to help us improve
+title: "[BUG] - "
+labels: ["bug", "triage"]
+assignees:
+  - Bleala
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to fill out this bug report!
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: Please provide a clear and concise description of what the bug is.
+      placeholder: e.g. When running vdirsyncer sync, the following error occurs...
+    validations:
+      required: true
+  - type: textarea
+    id: steps-to-reproduce
+    attributes:
+      label: Steps to reproduce
+      description: How can we reproduce the issue?
+      placeholder: |
+        1. Go to '...'
+        2. Click on '....'
+        3. Scroll down to '....'
+        4. See error
+    validations:
+      required: true
+  - type: textarea
+    id: expected-behavior
+    attributes:
+      label: Expected behavior
+      description: What did you expect to happen instead?
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant log output
+      description: Please include relevant log output. Please use proper formatting for code and logs.
+      render: shell
+  - type: input
+    id: vdirsyncer-version
+    attributes:
+      label: Vdirsyncer Version (inside the container)
+      description: Which version of Vdirsyncer are you using (if known)?
+      placeholder: e.g. 0.19.0
+  - type: input
+    id: docker-version
+    attributes:
+      label: Docker Version
+      description: Which version of Docker are you using? (e.g., `docker --version`)
+      placeholder: e.g. Docker version 20.10.7, build f0df350
+  - type: dropdown
+    id: host-os
+    attributes:
+      label: Host Operating System
+      description: On which operating system is your Docker host running?
+      options:
+        - Linux
+        - macOS
+        - Windows
+    validations:
+      required: true
+  - type: textarea
+    id: additional-context
+    attributes:
+      label: Additional context
+      description: Is there anything else we should know? Screenshots, configuration details (please remove sensitive data!).
