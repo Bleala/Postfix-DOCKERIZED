@@ -2,8 +2,6 @@ name: Postfix Deployment
 run-name: Postfix Deployment For Production Usage 🚀
 on:
   push:
-    branches:
-      - "master"
     tags:
       - "*.*.*"
 
