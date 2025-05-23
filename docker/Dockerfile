@@ -14,7 +14,7 @@ COPY files/run.sh /
 # Install packages and dependencies
 RUN apk --no-cache add apk-tools=~2.14.6 \
     && apk --no-cache add bash=~5.2.37 \
-    && apk --no-cache add gawk=~5.3.4 \
+    && apk --no-cache add gawk=~5.3.1 \
     && apk --no-cache add cyrus-sasl=~2.1.28 \
     && apk --no-cache add cyrus-sasl-login=~2.1.28 \
     && apk --no-cache add cyrus-sasl-crammd5=~2.1.28 \
