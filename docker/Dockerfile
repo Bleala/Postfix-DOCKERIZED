@@ -23,13 +23,11 @@ RUN apk --no-cache add apk-tools=~2.14.6 \
     # Create log directories
     && mkdir -p /var/log/supervisor/ /var/run/supervisor/ \
     # Allow all interfaces
-    && sed -i -e 's/inet_interfaces = localhost/inet_interfaces = all/g' /etc/postfix/main.cf
-
-# Make start script executable
-RUN chmod +x /run.sh
-
-# Build a new copy of the alias database
-RUN newaliases
+    && sed -i -e 's/inet_interfaces = localhost/inet_interfaces = all/g' /etc/postfix/main.cf \
+    # Make start script executable
+    && chmod +x /run.sh \
+    # Build a new copy of the alias database
+    && newaliases
 
 # Labeling
 LABEL maintainer="Bleala" \
