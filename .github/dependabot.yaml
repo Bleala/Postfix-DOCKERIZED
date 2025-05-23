@@ -10,7 +10,7 @@ updates:
       interval: "weekly"
     assignees:
       - "Bleala"
-    target-branch: "dev"
+    target-branch: "main"
     labels:
       - "dependencies"
       - "automated"
@@ -30,7 +30,7 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    target-branch: "dev"
+    target-branch: "main"
     labels:
       - "dependencies"
       - "automated"
@@ -51,7 +51,7 @@ updates:
         update-types:
           - "minor"
           - "patch"
-    target-branch: "dev"
+    target-branch: "main"
     labels:
       - "dependencies"
       - "automated"
