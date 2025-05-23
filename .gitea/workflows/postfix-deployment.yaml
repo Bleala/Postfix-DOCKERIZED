@@ -93,6 +93,7 @@ jobs:
       - name: Scan Image For Vulnerabilities
         uses: aquasecurity/trivy-action@0.30.0
         with:
+          scan-type: 'image'
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
           format: 'table'
           exit-code: '1'
