@@ -66,7 +66,30 @@ jobs:
           password: ${{ secrets.LOCAL_TOKEN }}
 
       # https://github.com/marketplace/actions/build-and-push-docker-images
-      - name: Build And Push
+      - name: Build and Push Pre Release Dev Image for Scanning
+        uses: docker/build-push-action@v6.17.0
+        with:
+          context: ./docker
+          platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6,linux/arm/v7
+          push: true
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
+
+      # Scan pre-release image from Registry
+      # https://github.com/marketplace/actions/aqua-security-trivy
+      - name: Scan image for vulnerabilities
+        uses: aquasecurity/trivy-action@0.30.0
+        with:
+          image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
+          format: 'table'
+          exit-code: '1'
+          ignore-unfixed: true
+          vuln-type: 'os,library'
+          severity: 'CRITICAL,HIGH'
+
+      # https://github.com/marketplace/actions/build-and-push-docker-images
+      - name: Build And Push Final Dev Image
         uses: docker/build-push-action@v6.17.0
         with:
           context: ./docker
