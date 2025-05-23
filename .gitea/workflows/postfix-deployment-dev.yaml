@@ -66,7 +66,7 @@ jobs:
           password: ${{ secrets.LOCAL_TOKEN }}
 
       # https://github.com/marketplace/actions/build-and-push-docker-images
-      - name: Build and Push Pre Release Dev Image for Scanning
+      - name: Build And Push Pre Release Dev Image For Scanning
         uses: docker/build-push-action@v6.17.0
         with:
           context: ./docker
@@ -78,7 +78,7 @@ jobs:
 
       # Scan pre-release image from Registry
       # https://github.com/marketplace/actions/aqua-security-trivy
-      - name: Scan image for vulnerabilities
+      - name: Scan Image For Vulnerabilities
         uses: aquasecurity/trivy-action@0.30.0
         with:
           image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
