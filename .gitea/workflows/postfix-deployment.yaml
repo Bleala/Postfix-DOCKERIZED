@@ -84,9 +84,9 @@ jobs:
           context: ./docker
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6,linux/arm/v7
           push: true
-          tags: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
+          tags: ${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
+          cache-from: type=registry,ref=${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
 
       # # Set up Tricy and scan pre-release-dev image from Registry
       # Normal GitHub Action does not work with Gitea Actions, because Trivy wants to login to GitHub
@@ -108,7 +108,7 @@ jobs:
             --ignore-unfixed \
             --pkg-types os,library \
             --severity CRITICAL,HIGH \
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
+            ${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
 
       # https://github.com/marketplace/actions/build-and-push-docker-images
       - name: Build And Push Final Image
@@ -119,8 +119,8 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta.outputs.tags }}
-          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
-          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
+          cache-from: type=registry,ref=${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
 
       # https://github.com/regclient/regclient
       - name: Clean Up 'pre-release' Image
@@ -132,7 +132,7 @@ jobs:
 
           # regctl automatically uses the Docker Login credentials from the Docker Login Action
           echo "Deleting pre-release tag from Docker Hub."
-          ./regctl tag rm ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
+          ./regctl tag rm ${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
 
           echo "Cleanup successful."
 
