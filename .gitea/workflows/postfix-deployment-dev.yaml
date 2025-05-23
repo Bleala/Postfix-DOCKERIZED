@@ -4,6 +4,18 @@ on:
   push:
     branches:
       - "dev"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: 'Custom tag (optional, defaults to dev)'
+        required: false
+        default: 'dev'
+        type: string
+      branch:
+        description: 'Custom branch (optional, defaults to dev)'
+        required: false
+        default: 'dev'
+        type: string 
 
 jobs:
   Postfix-Deployment-Development:
