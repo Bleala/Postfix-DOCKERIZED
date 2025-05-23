@@ -93,7 +93,7 @@ jobs:
             --ignore-unfixed \
             --vuln-type os,library \
             --severity CRITICAL,HIGH \
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
 
       # # Scan pre-release image from Registry
       # # https://github.com/marketplace/actions/aqua-security-trivy
