@@ -6,7 +6,7 @@ on:
       - "*.*.*"
 
 jobs:
-  Postfix-Deployment:
+  Postfix-Deployment-Production:
     name: Postfix Deployment Production
     runs-on: ubuntu-latest
     defaults:
