@@ -8,27 +8,26 @@ ARG ALPINE_VERSION="3.21.3" \
         IMAGE_VERSION="1.0.4" \
         POSTFIX_VERSION="3.9.3"
 
-# Update and install packages
-RUN apk update \
-    && apk add --no-cache --upgrade apk-tools \
-    && apk upgrade --no-cache --available \
-    # Install needed packages
-    && apk add bash gawk cyrus-sasl cyrus-sasl-login cyrus-sasl-crammd5 mailx postfix \
-    # Clear cache
-    && rm -rf /var/cache/apk/* \
+# Copy start script
+COPY files/run.sh /
+
+# Install packages and dependencies
+RUN apk --no-cache add apk-tools=~2.14.6 \
+    && apk --no-cache add bash=~5.2.37 \
+    && apk --no-cache add gawk=~5.3.1 \
+    && apk --no-cache add cyrus-sasl=~2.1.28 \
+    && apk --no-cache add cyrus-sasl-login=~2.1.28 \
+    && apk --no-cache add cyrus-sasl-crammd5=~2.1.28 \
+    && apk --no-cache add mailx=~8.1.2 \
+    && apk --no-cache add postfix=~3.9.4 \
     # Create log directories
     && mkdir -p /var/log/supervisor/ /var/run/supervisor/ \
     # Allow all interfaces
-    && sed -i -e 's/inet_interfaces = localhost/inet_interfaces = all/g' /etc/postfix/main.cf
-
-# Add start script
-ADD files/run.sh /
-
-# Make start script executable
-RUN chmod +x /run.sh
-
-# Build a new copy of the alias database
-RUN newaliases
+    && sed -i -e 's/inet_interfaces = localhost/inet_interfaces = all/g' /etc/postfix/main.cf \
+    # Make start script executable
+    && chmod +x /run.sh \
+    # Build a new copy of the alias database
+    && newaliases
 
 # Labeling
 LABEL maintainer="Bleala" \

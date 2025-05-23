@@ -22,6 +22,12 @@ jobs:
       - name: Check Out Repository Code
         uses: actions/checkout@v4.2.2
 
+      # https://github.com/marketplace/actions/hadolint-action
+      - name: Lint Dockerfile
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: ./docker/Dockerfile
+
       # https://github.com/marketplace/actions/docker-setup-qemu
       - name: Set Up QEMU
         uses: docker/setup-qemu-action@v3.6.0
