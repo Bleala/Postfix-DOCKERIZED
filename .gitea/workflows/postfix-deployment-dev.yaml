@@ -76,7 +76,10 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
 
-      - name: Install and Run Trivy Scanner
+      # # Set up Tricy and scan pre-release-dev image from Registry
+      # Normal GitHub Action does not work with Gitea Actions, because Trivy wants to login to GitHub
+      # # https://github.com/marketplace/actions/aqua-security-trivy
+      - name: Install Trivy And Scan Image For Vulnerabilities
         run: |
           # Schritt 1: Trivy-Binary installieren
           # Wir laden die neueste Version direkt herunter
@@ -91,22 +94,9 @@ jobs:
             --format table \
             --exit-code 1 \
             --ignore-unfixed \
-            --vuln-type os,library \
+            --pkg-type os,library \
             --severity CRITICAL,HIGH \
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
-
-      # # Scan pre-release image from Registry
-      # # https://github.com/marketplace/actions/aqua-security-trivy
-      # - name: Scan Image For Vulnerabilities
-      #   uses: aquasecurity/trivy-action@0.30.0
-      #   with:
-      #     scan-type: 'image'
-      #     image-ref: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
-      #     format: 'table'
-      #     exit-code: '1'
-      #     ignore-unfixed: true
-      #     vuln-type: 'os,library'
-      #     severity: 'CRITICAL,HIGH'
 
       # https://github.com/marketplace/actions/build-and-push-docker-images
       - name: Build And Push Final Dev Image
@@ -121,6 +111,20 @@ jobs:
             ${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:dev
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
+
+      # https://github.com/regclient/regclient
+      - name: Clean Up 'pre-release-dev' Image
+        if: success()
+        run: |
+          echo "Installing regctl."
+          curl -sL "https://github.com/regclient/regclient/releases/latest/download/regctl-linux-amd64" -o regctl
+          chmod +x ./regctl
+
+          # regctl automatically uses the Docker Login credentials from the Docker Login Action
+          echo "Deleting pre-release-dev tag from Docker Hub."
+          ./regctl tag rm ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
+
+          echo "Cleanup successful."
 
       # https://github.com/niniyas/ntfy-action
       - name: Ntfy Notification
