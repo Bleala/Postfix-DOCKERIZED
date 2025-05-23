@@ -2,13 +2,20 @@
 
 ### 📝 PR Title Convention
 **Please provide a Pull Request title in the format of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).**
+This helps automate versioning and changelog generation.
 
-* `feat:` Adds a new feature (triggers a `minor` release)
-* `fix:` Patches a bug (triggers a `patch` release)
-* `docs:` Changes to documentation (no release)
-* `chore:` Build process or auxiliary tool changes (no release)
+* `feat:` Adds a new user-facing feature (triggers a `minor` release)
+* `fix:` Patches a user-facing bug (triggers a `patch` release)
 * `perf:` A code change that improves performance (triggers a `patch` release)
-* For a **Breaking Change**, add a `!` after the type (e.g., `feat!: ...`) or add a `BREAKING CHANGE:` footer to the description (triggers a `major` release).
+* `docs:` Changes to documentation only (no release)
+* `style:` Changes that do not affect the meaning of the code (white-space, formatting, missing semi-colons, etc.) (no release)
+* `refactor:` A code change that neither fixes a bug nor adds a feature (e.g., code restructuring, renaming variables) (no release)
+* `test:` Adding missing tests or correcting existing tests; does not alter production code (no release)
+* `build:` Changes that affect the build system or external dependencies (e.g., `Dockerfile` updates, changes to npm packages, updates to build scripts) (no release)
+* `ci:` Changes to our CI configuration files and scripts (e.g., GitHub Actions workflows) (no release)
+* `chore:` Other changes that don't modify `src` or `test` files (e.g., updating `.gitignore`, project configuration changes) (no release)
+
+* For a **Breaking Change**, add a `!` after the type (e.g., `feat!: ...`) OR add a `BREAKING CHANGE:` footer in the PR description. This will **always** trigger a `major` release, regardless of the type.
 
 ---
 
