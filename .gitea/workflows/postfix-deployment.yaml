@@ -40,6 +40,8 @@ jobs:
             ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
             ${{ secrets.GHCR_URL }}/${{ secrets.GHCR_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
             ${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
+          flavor: |
+            latest=true
           # generate Docker tags based on the following events/attributes
           tags: |
             type=semver,pattern={{version}}

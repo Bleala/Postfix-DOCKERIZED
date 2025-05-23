@@ -34,6 +34,22 @@ jobs:
       #     curl -fsSL https://get.docker.com -o get-docker.sh
       #     sh ./get-docker.sh
 
+      # https://github.com/marketplace/actions/docker-metadata-action
+      - name: Docker Metadata (Tagging)
+        id: meta
+        uses: docker/metadata-action@v5.7.0
+        with:
+          # list of Docker images to use as base name for tags
+          images: |
+            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
+            ${{ secrets.GHCR_URL }}/${{ secrets.GHCR_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
+            ${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
+          flavor: |
+            latest=false
+          # generate Docker tags based on the following events/attributes
+          tags: |
+            type=raw,value=dev
+
       # https://github.com/marketplace/actions/docker-setup-qemu
       - name: Set Up QEMU
         uses: docker/setup-qemu-action@v3.6.0
@@ -106,9 +122,7 @@ jobs:
           platforms: linux/amd64,linux/386,linux/arm64,linux/arm/v6,linux/arm/v7
           push: true
           tags: |
-            ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:dev
-            ${{ secrets.GHCR_URL }}/${{ secrets.GHCR_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:dev
-            ${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:dev
+            ${{ steps.meta.outputs.tags }}
           cache-from: type=registry,ref=${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
           cache-to: type=registry,ref=${{ secrets.LOCAL_URL }}/${{ secrets.LOCAL_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
 
