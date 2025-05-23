@@ -76,6 +76,12 @@ jobs:
           cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
           cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
 
+      - name: DEBUG - Try to pull the pre-release image manually
+        run: |
+          echo "Attempting to pull the image to verify it exists and auth works..."
+          docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:pre-release-dev
+          echo "Image pull successful!"
+
       # Scan pre-release image from Registry
       # https://github.com/marketplace/actions/aqua-security-trivy
       - name: Scan Image For Vulnerabilities
