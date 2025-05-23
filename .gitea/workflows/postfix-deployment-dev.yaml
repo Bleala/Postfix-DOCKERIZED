@@ -30,9 +30,9 @@ jobs:
           repository: ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}
           short-description: "Postfix - a simple SMTP TLS relay with no local authentication enabled. DOCKERIZED!"
 
+      # Docker installation is not necessary, as Docker is already pre-installed in ubuntu-latest.
       # https://docs.docker.com/engine/install/ubuntu/
       # https://docs.docker.com/engine/install/ubuntu/#install-using-the-convenience-script
-      # Docker installation is not necessary, as Docker is already pre-installed in ubuntu-latest.
       # - name: Install Docker Engine
       #   run: | 
       #     curl -fsSL https://get.docker.com -o get-docker.sh
