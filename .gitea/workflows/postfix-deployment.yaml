@@ -7,7 +7,11 @@ on:
 
 jobs:
   Postfix-Deployment:
+    name: Postfix Deployment Production
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
     steps:
       # https://github.com/marketplace/actions/checkout
       - name: Check Out Repository Code
