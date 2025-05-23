@@ -58,7 +58,7 @@ body:
     id: workaround
     attributes:
       label: Known Workarounds
-      description: Is there a temporary solution or workaround you have found?
+      description: Is there a temporary solution or workaround you have found that allows you to bypass the issue?
       placeholder: e.g., I can avoid this by restarting the container...
 
   - type: textarea
@@ -69,7 +69,6 @@ body:
         Please include relevant log output. Use proper formatting for code and logs.
         Please remove sensitive data before pasting the logs here!
       render: shell
-
 
   - type: dropdown
     id: severity
