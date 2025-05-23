@@ -30,6 +30,20 @@ categories:
     labels: 
       - 'maintenance'
 template: |
-  ## What's New/Changed in this Release
+  # 🎉 Postfix-DOCKERIZED Release $RESOLVED_VERSION!
+  A new version of Postfix-DOCKERIZED is available!
+
+  ## What's New/Changed
 
   $CHANGES
+
+  ## Download
+  Download at Docker Hub: 
+  https://hub.docker.com/r/bleala/postfix
+
+  Download at Github Container Registry:
+  https://github.com/Bleala/Postfix-DOCKERIZED/pkgs/container/postfix
+
+  ## Versions
+  * Postfix: 
+  * Alpine: 
