@@ -86,6 +86,8 @@ jobs:
           push: true
           tags: |
             ${{ steps.meta.outputs.tags }}
+          cache-from: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache
+          cache-to: type=registry,ref=${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.REPOSITORY_NAME }}:buildcache,mode=max
 
       # https://github.com/niniyas/ntfy-action
       - name: Ntfy Notification
