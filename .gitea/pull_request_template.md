@@ -1,39 +1,39 @@
-<!-- BEFORE SUBMITTING YOUR PR, PLEASE REMOVE THIS TEXT -->
-<!-- REMOVE START -->
-# Creating a Pull Request
+---
 
-I use github/gitea actions to do automatic [semantic versioning](https://github.com/semantic-release/semantic-release), so please use the following nomenclature for the commit message according to the type of change:
+### 📝 PR Title Convention
+**Please provide a Pull Request title in the format of [Conventional Commits](https://www.conventionalcommits.org/en/v1.0.0/).**
 
-* Prefix with `feat:`, and it will trigger a minor version bump. 
-* Prefix with `fix:`, and it will trigger a patch version bump.
-* Prefix with `BREAKING CHANGE:`, and it will trigger a major version bump.
-<!-- REMOVE END -->
+* `feat:` Adds a new feature (triggers a `minor` release)
+* `fix:` Patches a bug (triggers a `patch` release)
+* `docs:` Changes to documentation (no release)
+* `chore:` Build process or auxiliary tool changes (no release)
+* `perf:` A code change that improves performance (triggers a `patch` release)
+* For a **Breaking Change**, add a `!` after the type (e.g., `feat!: ...`) or add a `BREAKING CHANGE:` footer to the description (triggers a `major` release).
 
-## Description of the change
-<!--Please be very clear on the intention of the modifications included in the pull request.-->
-<!--If it is a bug, explain what is the issue at hand and how you are fixing it. -->
-<!--If it is an improvement, explain why do you think it is needed and the benefits it brings to the project. -->
-<!--Ideally I would recommend to create an issue first to discuss the new feature with the developers.-->
+---
 
-## Motivation and Context
-<!--- Why is this change required? What problem does it solve? -->
-<!--- If it fixes an open issue, please link to the issue here. -->
+### 🔗 Related Issue
 
-## How Has This Been Tested?
-<!--- Please describe in detail how you tested your changes. -->
-<!--- Include details of your testing environment, tests ran to see how -->
+Closes: #
 
-## Types of Changes
-<!--- What types of changes does your code introduce? Put an `x` in all the boxes that apply: -->
-- [ ] Bug fix (non-breaking change which fixes an issue)
-- [ ] New feature (non-breaking change which adds functionality)
-- [ ] Breaking change (fix or feature that would cause existing functionality to not work as expected)
-- [ ] Documentation (adding or updating documentation)
+### 🎯 Description
 
-## Checklist:
-<!--- Go over all the following points, and put an `x` in all the boxes that apply. -->
-<!--- If you're unsure about any of these, don't hesitate to ask. I'm here to help! -->
-- [ ] My change requires a change to the documentation and I have updated the documentation accordingly.
-- [ ] My change adds a new configuration variable and I have updated the `.env.example` file accordingly.
+### ✅ How Has This Been Tested?
 
-And lastly, many thanks for taking your time to help me improve this project !
+**Testing Checklist:**
+- [ ] The Docker image builds successfully locally (`docker build .`).
+- [ ] The container starts without errors with the new configuration.
+- [ ] I have manually verified the changed functionality (e.g., successfully sent a test email).
+- [ ] My changes were tested on the following system: `[Please enter your OS and Docker version here]`
+
+### ☑️ Final Checklist
+
+- [ ] My code follows the style guidelines of this project.
+- [ ] I have performed a self-review of my own code.
+- [ ] My commits have clear and conventional messages.
+- [ ] My change requires a change to the documentation, and I have updated the documentation accordingly.
+- [ ] My change adds new configuration variables, and I have updated the `.env.example` file accordingly.
+
+---
+
+Thank you for your time and effort in helping to improve this project!
