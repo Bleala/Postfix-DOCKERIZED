@@ -50,6 +50,8 @@ jobs:
         uses: Azbagheri/shell-linter@v0.8.0
         with:
           exclude-paths: "LICENSE,docker/Dockerfile"
+           # first needed by postfix, others will be fixed later
+          exclude-issues: "SC2016,SC2013,SC2001,SC1001"
 
       # https://github.com/marketplace/actions/docker-setup-qemu
       - name: Set Up QEMU
