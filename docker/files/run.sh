@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# shellcheck disable=SC2016,SC2013,SC2001,SC1001 # first needed by postfix, others will be fixed later
+
 # Set Debug
 [ "${DEBUG}" == "yes" ] && set -x
 
@@ -137,8 +139,8 @@ add_config_value "inet_protocols" "all"
 # Create sasl_passwd file with auth credentials
 if [[ ! -f /etc/postfix/sasl_passwd ]] && [[ -n "${SMTP_USERNAME}" ]]
 then
-  grep -q "${SMTP_SERVER}" /etc/postfix/sasl_passwd  > /dev/null 2>&1
-  if [[ "${?}" -gt 0 ]]; then
+  if ! grep -q "${SMTP_SERVER}" /etc/postfix/sasl_passwd
+  then
     echo "Adding SASL authentication configuration"
     echo "[${SMTP_SERVER}]:${SMTP_PORT} ${SMTP_USERNAME}:${SMTP_PASSWORD}" >> /etc/postfix/sasl_passwd
     postmap /etc/postfix/sasl_passwd
