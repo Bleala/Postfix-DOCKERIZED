@@ -1,5 +1,5 @@
 # [Postfix](https://www.postfix.org/documentation.html "Official Documentation")-DOCKERIZED
-[![Docker Image Version](https://img.shields.io/docker/v/bleala/postfix/latest?style=flat-square&label=Version)](https://hub.docker.com/r/bleala/postfix/)
+[![GitHub Release](https://img.shields.io/github/v/release/Bleala/Postfix-DOCKERIZED?style=flat-square&label=Version)](https://github.com/Bleala/Postfix-DOCKERIZED/releases)
 [![Docker Stars](https://img.shields.io/docker/stars/bleala/postfix?style=flat-square&label=Docker%20Stars)](https://hub.docker.com/r/bleala/postfix/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/bleala/postfix?style=flat-square&label=Docker%20Pulls)](https://hub.docker.com/r/bleala/postfix/)
 [![CI Status](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/ci-docker-build.yaml/badge.svg)](https://github.com/Bleala/Postfix-DOCKERIZED/)
