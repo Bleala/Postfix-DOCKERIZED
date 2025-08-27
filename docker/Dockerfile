@@ -4,10 +4,10 @@
 FROM alpine:3.22.1
 
 # Build Arguments
-ARG ALPINE_VERSION="3.22.0" \
+ARG ALPINE_VERSION="3.22.1" \
         BUILD_DATE="2025-06-11T12:00:00Z" \
         IMAGE_VERSION="1.0.4" \
-        POSTFIX_VERSION="3.10.2"
+        POSTFIX_VERSION="3.10.4"
 
 # Set labels
 LABEL org.opencontainers.image.authors="Bleala" \
@@ -31,7 +31,7 @@ RUN apk --no-cache add apk-tools=~2.14.9 \
     && apk --no-cache add cyrus-sasl-login=~2.1.28 \
     && apk --no-cache add cyrus-sasl-crammd5=~2.1.28 \
     && apk --no-cache add mailx=~8.1.2 \
-    && apk --no-cache add postfix=~3.10.2 \
+    && apk --no-cache add postfix=~3.10.4 \
     # Create log directories
     && mkdir -p /var/log/supervisor/ /var/run/supervisor/ \
     # Allow all interfaces
