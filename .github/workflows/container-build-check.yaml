@@ -107,15 +107,16 @@ jobs:
     secrets:
       GITHUB_WORKFLOW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  cleanup-ci-container-build-tag:
-    name: GHCR Clean Up 'ci-container-build' Image Tag 🧹🏷️
+  cleanup-buildcache-image-tag:
+    name: GHCR Clean Up 'buildcache' Image Tag 🧹🏷️
     needs:
       - trivy-scan-and-upload
-    uses: Bleala/Reusable-Workflows/.github/workflows/reusable-cleanup-ci-container-build-tag.yaml@main
+    uses: Bleala/Reusable-Workflows/.github/workflows/reusable-cleanup-ghcr.yaml@main
     if: always()
     with:
-      image_name: ${{ vars.IMAGE_NAME }}
-      image_tag: ${{ vars.IMAGE_TAG_CI_CONTAINER_BUILD }}
+      cleanup_strategy: 'buildcache'
+      image_name: ${{ vars.BUILDCACHE_NAME }}
+      image_tag: ${{ vars.BUILDCACHE_TAG }}
       username: ${{ vars.USERNAME_GITHUB }}
     permissions:
       # for actions/checkout to fetch code
@@ -125,15 +126,16 @@ jobs:
     secrets:
       GITHUB_WORKFLOW_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-  cleanup-buildcache-image-tag:
-    name: GHCR Clean Up 'buildcache' Image Tag 🧹🏷️
+  cleanup-ci-container-build-tag:
+    name: GHCR Clean Up 'ci-container-build' Image Tag 🧹🏷️
     needs:
       - trivy-scan-and-upload
-    uses: Bleala/Reusable-Workflows/.github/workflows/reusable-cleanup-buildcache-image-tag.yaml@main
+    uses: Bleala/Reusable-Workflows/.github/workflows/reusable-cleanup-ghcr.yaml@main
     if: always()
     with:
-      image_name: ${{ vars.BUILDCACHE_NAME }}
-      image_tag_to_exclude: ${{ vars.BUILDCACHE_TAG }}
+      cleanup_strategy: 'ci-container-build'
+      image_name: ${{ vars.IMAGE_NAME }}
+      image_tag: ${{ vars.IMAGE_TAG_CI_CONTAINER_BUILD }}
       username: ${{ vars.USERNAME_GITHUB }}
     permissions:
       # for actions/checkout to fetch code
