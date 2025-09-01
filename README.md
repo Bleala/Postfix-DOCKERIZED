@@ -53,6 +53,58 @@ Platform:
 
 ---
 
+## Image Signing & Verification
+
+To ensure the authenticity and integrity of my images, all `bleala/postfix` images pushed to `Docker Hub` and `GitHub Container Registry` (and maybe more in the future) are signed using [Cosign](https://github.com/sigstore/cosign "Cosign").
+
+I use a static key pair for signing. The public key required for verification, `cosign.pub`, is available in the root of this GitHub repository:
+* **Public Key:** [`cosign.pub`](https://github.com/Bleala/Postfix-DOCKERIZED/blob/main/cosign.pub "cosign.pub")
+
+### How to Verify an Image
+
+You can verify the signature of an image to ensure it hasn't been tampered with and originates from me.
+
+1.  **Install Cosign:**
+    If you don't have Cosign installed, follow the official installation instructions: [Cosign Installation Guide](https://docs.sigstore.dev/cosign/system_config/installation/ "Cosign Installation Guide").
+
+2.  **Obtain the Public Key:**
+    Download the [`cosign.pub`](https://github.com/Bleala/Postfix-DOCKERIZED/blob/main/cosign.pub "cosign.pub") file from this repository or clone the repository to access it locally.
+
+3.  **Verify the Image:**
+    Use the `cosign verify` command. It is highly recommended to verify against the image **digest** (e.g., `sha256:...`) rather than a mutable tag (like `latest` or `1.23.0`). You can find image digests on Docker Hub or GitHub Container Registry.
+
+    ```bash
+    # Ensure 'cosign.pub' is in your current directory, or provide the full path to it.
+    # Replace <registry>/bleala/postfix@sha256:<image-digest> with the actual image reference and its digest.
+
+    # Example for an image on Docker Hub:
+    cosign verify --key cosign.pub docker.io/bleala/postfix@sha256:<ACTUAL_IMAGE_DIGEST_HERE>
+
+    # Example for an image on GitHub Container Registry:
+    cosign verify --key cosign.pub ghcr.io/bleala/postfix@sha256:<ACTUAL_IMAGE_DIGEST_HERE>
+    ```
+
+    For instance, to verify the `dev` tag with the following digest `sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12`:
+    ```bash
+    cosign verify --key cosign.pub docker.io/bleala/postfix@sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12
+    ```
+
+    A successful verification will output information like this:
+
+    ```
+    cosign verify --key cosign.pub docker.io/bleala/postfix@sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12
+
+    Verification for index.docker.io/bleala/postfix@sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12 --
+    The following checks were performed on each of these signatures:
+      - The cosign claims were validated
+      - Existence of the claims in the transparency log was verified offline
+      - The signatures were verified against the specified public key
+
+    [{"critical":{"identity":{"docker-reference":"index.docker.io/bleala/postfix"},"image":{"docker-manifest-digest":"sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12"},"type":"cosign container image signature"},"optional":{"Bundle":{"SignedEntryTimestamp":"MEYCIQD0TrPhm+mdR7+Dcrpjxo16Xdoa1YugMKEVRTToNA4B+gIhAPo0NmutqMtN58y2SVSp4hlA30qhmrpRzZod/MRrEq7a","Payload":{"body":"eyJhcGlWZXJzaW9uIjoiMC4wLjEiLCJraW5kIjoiaGFzaGVkcmVrb3JkIiwic3BlYyI6eyJkYXRhIjp7Imhhc2giOnsiYWxnb3JpdGhtIjoic2hhMjU2IiwidmFsdWUiOiJlYzg4OGIzY2ZlZDgyNzgxMzI1MGM0MDUyYTExNGNkZDhiZmFkY2ViNTI4MzliMGZkNjM2YjE4ZDNjZGUzMTNlIn19LCJzaWduYXR1cmUiOnsiY29udGVudCI6Ik1FVUNJUUROUnF1azdMRnV4cWMzZWRub2dJbmZKd2wyN0UyeWFnNjd1MlhPeXoyMDJRSWdlLysvYWtzMmVyUC9GalhrdUVFME93RHpSOW9KOXhOWXIrMXcyVmZ1cmpVPSIsInB1YmxpY0tleSI6eyJjb250ZW50IjoiTFMwdExTMUNSVWRKVGlCUVZVSk1TVU1nUzBWWkxTMHRMUzBLVFVacmQwVjNXVWhMYjFwSmVtb3dRMEZSV1VsTGIxcEplbW93UkVGUlkwUlJaMEZGU0VWWFRFYzVjVVI2VFdGdlJ6TlJTSGxXTUhoVFRVZzNRblF3VGdvMVRVWkRNWEV3VFhabE5DOHZVMmwxZVZWbU5VRnBaRVJZY2s5S1kwaEdSalYxZERWUVMyNVViMUZ6YjNWNWRGVTBXVmhoWlM5bU1UQlJQVDBLTFMwdExTMUZUa1FnVUZWQ1RFbERJRXRGV1MwdExTMHRDZz09In19fX0=","integratedTime":1756721445,"logIndex":455914577,"logID":"c0d23d6ad406973f9559f3ba2d1ca01f84147d8ffc5b8445c224f98b9591801d"}}}}]
+    ```
+
+---
+
 ## Usage
 
 To start the container you can run the following:
