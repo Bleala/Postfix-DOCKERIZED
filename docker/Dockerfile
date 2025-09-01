@@ -5,7 +5,7 @@ FROM alpine:3.22.1
 
 # Build Arguments
 ARG ALPINE_VERSION="3.22.1" \
-        BUILD_DATE="2025-06-11T12:00:00Z" \
+        BUILD_DATE="2025-09-01T12:00:00Z" \
         IMAGE_VERSION="1.0.4" \
         POSTFIX_VERSION="3.10.4"
 
