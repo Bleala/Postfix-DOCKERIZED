@@ -54,7 +54,7 @@ jobs:
     uses: Bleala/Reusable-Workflows/.github/workflows/reusable-shell-scripts-linter.yaml@main
     with:
       # first needed by postfix, others will be fixed later
-      exclude-issues: ${{ vars.SHELLCHECK_EXCLUDE_ISSUES }}
+      exclude_issues: ${{ vars.SHELLCHECK_EXCLUDE_ISSUES }}
       exclude_paths:  ${{ vars.SHELLCHECK_EXCLUDE_PATHS }}
       ref: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.sha) || (github.event_name == 'workflow_dispatch' && github.event.inputs.source) || github.ref }}
     permissions:
