@@ -2,7 +2,7 @@
 [![GitHub Release](https://img.shields.io/github/v/release/Bleala/Postfix-DOCKERIZED?style=flat-square&label=Version)](https://github.com/Bleala/Postfix-DOCKERIZED/releases)
 [![Docker Stars](https://img.shields.io/docker/stars/bleala/postfix?style=flat-square&label=Docker%20Stars)](https://hub.docker.com/r/bleala/postfix/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/bleala/postfix?style=flat-square&label=Docker%20Pulls)](https://hub.docker.com/r/bleala/postfix/)
-[![CI Status](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/ci-docker-build.yaml/badge.svg)](https://github.com/Bleala/Postfix-DOCKERIZED/)
+[![Container Build Check 🐳✅](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml/badge.svg)](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml)
 
 A simple [Postfix](https://www.postfix.org/ "Postfix Homepage") SMTP TLS relay docker [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image") based image with no local authentication enabled (to be run in a secure LAN).
 
