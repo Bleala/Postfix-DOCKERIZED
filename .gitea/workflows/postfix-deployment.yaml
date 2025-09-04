@@ -8,12 +8,12 @@ on:
     inputs:
       tag:
         description: 'Specify the version to build and tag (default: 1.0.4)'
-        required: true
+        required: false
         default: '1.0.4'
         type: string
       source:
         description: 'Specify the branch/tag to build from (default: main)'
-        required: true
+        required: false
         default: 'main'
         type: string 
 
