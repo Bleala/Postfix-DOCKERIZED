@@ -5,20 +5,8 @@ FROM alpine:3.22.1
 
 # Build Arguments
 ARG ALPINE_VERSION="3.22.1" \
-        BUILD_DATE="2025-09-01T12:00:00Z" \
         IMAGE_VERSION="1.0.4" \
         POSTFIX_VERSION="3.10.4"
-
-# Set labels
-LABEL org.opencontainers.image.authors="Bleala" \
-      org.opencontainers.image.vendor="Bleala" \
-      org.opencontainers.image.version="${POSTFIX_VERSION}" \
-      org.opencontainers.image.created="${BUILD_DATE}" \
-      org.opencontainers.image.title="Postfix-DOCKERIZED" \
-      org.opencontainers.image.description="Postfix - a simple SMTP TLS relay with no local authentication enabled. DOCKERIZED!" \
-      org.opencontainers.image.documentation="https://unbound.docs.nlnetlabs.nl/en/latest/" \
-      org.opencontainers.image.url="https://github.com/Bleala/Postfix-DOCKERIZED" \
-      org.opencontainers.image.source="https://github.com/Bleala/Postfix-DOCKERIZED"
 
 # Copy Files
 COPY files /files
@@ -40,6 +28,21 @@ RUN apk --no-cache add apk-tools=~2.14.9 \
     && chmod +x /files/run.sh \
     # Build a new copy of the alias database
     && newaliases
+
+# Set build date argument here, because caching would break otherwise
+# It is set during the build process in the reusable workflow
+ARG BUILD_DATE
+
+# Set labels
+LABEL org.opencontainers.image.authors="Bleala" \
+      org.opencontainers.image.vendor="Bleala" \
+      org.opencontainers.image.version="${IMAGE_VERSION}" \
+      org.opencontainers.image.created="${BUILD_DATE}" \
+      org.opencontainers.image.title="Postfix-DOCKERIZED" \
+      org.opencontainers.image.description="Postfix - a simple SMTP TLS relay with no local authentication enabled. DOCKERIZED!" \
+      org.opencontainers.image.documentation="https://unbound.docs.nlnetlabs.nl/en/latest/" \
+      org.opencontainers.image.url="https://github.com/Bleala/Postfix-DOCKERIZED" \
+      org.opencontainers.image.source="https://github.com/Bleala/Postfix-DOCKERIZED"
 
 # Expose Postfix Port
 EXPOSE 25
