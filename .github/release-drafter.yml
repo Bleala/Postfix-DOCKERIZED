@@ -44,6 +44,9 @@ template: |
   Download at Github Container Registry:
   https://github.com/Bleala/Postfix-DOCKERIZED/pkgs/container/postfix
 
+  Download at Quay.io:
+  https://quay.io/repository/bleala/postfix
+
   ## 🏷️ Versions
   * Postfix: 
   * Alpine: 
