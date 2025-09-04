@@ -1,4 +1,5 @@
 # [Postfix](https://www.postfix.org/documentation.html "Official Documentation")-DOCKERIZED
+
 [![GitHub Release](https://img.shields.io/github/v/release/Bleala/Postfix-DOCKERIZED?style=flat-square&label=Version)](https://github.com/Bleala/Postfix-DOCKERIZED/releases)
 [![Docker Stars](https://img.shields.io/docker/stars/bleala/postfix?style=flat-square&label=Docker%20Stars)](https://hub.docker.com/r/bleala/postfix/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/bleala/postfix?style=flat-square&label=Docker%20Pulls)](https://hub.docker.com/r/bleala/postfix/)
@@ -7,23 +8,25 @@
 A simple [Postfix](https://www.postfix.org/ "Postfix Homepage") SMTP TLS relay docker [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image") based image with no local authentication enabled (to be run in a secure LAN).
 
 ## About Postfix
+
 **Disclaimer:** I am just the maintainer of this docker container, I did not write the software. Visit the [Official Homepage](https://www.postfix.org/ "Postfix Homepage") to thank the author(s)! :)
 
 **Info:** I originally forked this repositofy from [Juan Luis Baptiste](https://github.com/juanluisbaptiste/ "Juan Luis Baptiste"). Thank you for your work! :)
 
 What is Postfix? It is Wietse Venema's mail server that started life at IBM research as an alternative to the widely-used Sendmail program. After eight years at Google, Wietse continues to maintain Postfix.
 
-Postfix attempts to be fast, easy to administer, and secure. The outside has a definite Sendmail-ish flavor, but the inside is completely different. 
+Postfix attempts to be fast, easy to administer, and secure. The outside has a definite Sendmail-ish flavor, but the inside is completely different.
 
-Official Website - https://www.postfix.org/
+Official Website - <https://www.postfix.org/>
 
-Docs - https://www.postfix.org/documentation.html
+Docs - <https://www.postfix.org/documentation.html>
 
-My Github Repository - https://github.com/Bleala/Postfix-DOCKERIZED
+My Github Repository - <https://github.com/Bleala/Postfix-DOCKERIZED>
 
-Docker Hub - https://hub.docker.com/r/bleala/postfix
+Docker Hub - <https://hub.docker.com/r/bleala/postfix>
 
 ---
+
 ## Image, Versions and Architecture
 
 I built this image based on [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image").
@@ -33,7 +36,7 @@ There will always be two different versions:
 | Tag | Content |
 | ------------- |:-------------:|
 | Latest    | Contains the latest stable version |
-| x.x.x     | Contains the Postfix and Alpine versions mentioned at the bottom of the page and in the release notes | 
+| x.x.x     | Contains the Postfix and Alpine versions mentioned at the bottom of the page and in the release notes |
 
 I am using semantic versioning for this image. For all supported architectures there are the following versioned tags:
 
@@ -45,6 +48,7 @@ I am using semantic versioning for this image. For all supported architectures t
 There are also several platforms supported:
 
 Platform:
+
 * linux/amd64
 * linux/386
 * linux/arm64
@@ -58,19 +62,20 @@ Platform:
 To ensure the authenticity and integrity of my images, all `bleala/postfix` images pushed to `Docker Hub` and `GitHub Container Registry` (and maybe more in the future) are signed using [Cosign](https://github.com/sigstore/cosign "Cosign").
 
 I use a static key pair for signing. The public key required for verification, `cosign.pub`, is available in the root of this GitHub repository:
+
 * **Public Key:** [`cosign.pub`](https://github.com/Bleala/Postfix-DOCKERIZED/blob/main/cosign.pub "cosign.pub")
 
 ### How to Verify an Image
 
 You can verify the signature of an image to ensure it hasn't been tampered with and originates from me.
 
-1.  **Install Cosign:**
+1. **Install Cosign:**
     If you don't have Cosign installed, follow the official installation instructions: [Cosign Installation Guide](https://docs.sigstore.dev/cosign/system_config/installation/ "Cosign Installation Guide").
 
-2.  **Obtain the Public Key:**
+2. **Obtain the Public Key:**
     Download the [`cosign.pub`](https://github.com/Bleala/Postfix-DOCKERIZED/blob/main/cosign.pub "cosign.pub") file from this repository or clone the repository to access it locally.
 
-3.  **Verify the Image:**
+3. **Verify the Image:**
     Use the `cosign verify` command. It is highly recommended to verify against the image **digest** (e.g., `sha256:...`) rather than a mutable tag (like `latest` or `1.23.0`). You can find image digests on Docker Hub or GitHub Container Registry.
 
     ```bash
@@ -85,13 +90,14 @@ You can verify the signature of an image to ensure it hasn't been tampered with 
     ```
 
     For instance, to verify the `dev` tag with the following digest `sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12`:
+
     ```bash
     cosign verify --key cosign.pub docker.io/bleala/postfix@sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12
     ```
 
     A successful verification will output information like this:
 
-    ```
+    ```bash
     cosign verify --key cosign.pub docker.io/bleala/postfix@sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12
 
     Verification for index.docker.io/bleala/postfix@sha256:961ca387d48611241720d18895ae9a5f8434e61757dc5c0aeff7aed3b632dd12 --
@@ -109,7 +115,7 @@ You can verify the signature of an image to ensure it hasn't been tampered with 
 
 To start the container you can run the following:
 
-```
+```bash
 docker run -d --name postfix -p "25:25"  \
         -e SMTP_SERVER=your.mail.server \
         -e SERVER_HOSTNAME=your.mail.server \
@@ -117,7 +123,6 @@ docker run -d --name postfix -p "25:25"  \
 ```
 
 But since docker compose is easier to maintain, I'll give you a valid docker compose example:
-
 
 ```docker compose.yml
 version: "3.9"
@@ -191,23 +196,23 @@ services:
 
 You can start the docker-compose.yml with the following command
 
-```
+```bash
 docker compose up -d
 ```
 
 If you want to see the container logs, you can run
 
-```
+```bash
 docker compose logs -f
 ```
 
 or
 
-```
+```bash
 docker logs -f postfix
 ```
 
-#### Google specifics
+### Google specifics
 
 Gmail by default [does not allow email clients that don't use OAUTH 2](http://googleonlinesecurity.blogspot.co.uk/2014/04/new-security-measures-will-affect-older.html) for authentication (like Thunderbird or Outlook). First you need to enable access to "Less secure apps" on your
 [google settings](https://www.google.com/settings/security/lesssecureapps).
@@ -216,6 +221,7 @@ Also take into account that email `From:` header will contain the email address 
 authenticate against the Gmail SMTP server (SMTP_USERNAME), the one on the email will be ignored by Gmail unless you [add it as an alias](https://support.google.com/mail/answer/22370).
 
 ### Debugging
+
 If you need troubleshooting the container you can set the environment variable `DEBUG=yes` for a more verbose output.
 
 ---
@@ -236,44 +242,47 @@ You can set fifteen different environment variables if you want to:
 |   `SMTP_USERNAME_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_USERNAME_FILE=/secrets/smtp_username`   |   Optional, default to `unset`   |
 |   `SMTP_PASSWORD_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_PASSWORD_FILE=/secrets/smtp_username`   |   Optional, default to `unset`   |
 |   `ALWAYS_ADD_MISSING_HEADERS`   |   This is related to the [always\_add\_missing\_headers](http://www.postfix.org/postconf.5.html#always_add_missing_headers) Postfix option <br> If set to `yes`, Postfix will always add missing headers among `From:`, `To:`, `Date:` or `Message-ID:`   |   Optional, default to `no`   |
-|   `OVERWRITE_FROM`   |   This will rewrite the from address overwriting it with the specified address for all email being relayed <br> Example settings: <br> OVERWRITE_FROM=email@company.com <br> OVERWRITE_FROM="Your Name" <email@company.com>   |   Optional, default to `unset`   |
+|   `OVERWRITE_FROM`   |   This will rewrite the from address overwriting it with the specified address for all email being relayed <br> Example settings: <br> OVERWRITE_FROM=<email@company.com> <br> OVERWRITE_FROM="Your Name" <email@company.com>   |   Optional, default to `unset`   |
 |   `DESTINATION`   |   This will define a list of domains from which incoming messages will be accepted   |   Optional, default to `unset`   |
 |   `LOG_SUBJECT`   |   This will output the subject line of messages in the log   |   Optional, default to `no`   |
 |   `SMTPUTF8_ENABLE`   |   This will enable or disable support for SMTPUTF8 <br> Valid values are `no` to disable and `yes` to enable <br> Not setting this variable will use the postfix default, which is `yes`.   |   Optional, default to `yes`   |
 |   `MESSAGE_SIZE_LIMIT`   |   This will change the default limit of 10240000 bytes (10MB)   |   Optional, default to `10240000`   |
 
---- 
+---
 
 ### Build instructions
 
 Clone this repo and then:
 
-```
+```bash
 cd docker-Postfix
 docker build -t bleala/postfix:dev .
 ```
 
 Or you can use the provided [docker-compose.yml](https://github.com/Bleala/Postfix-DOCKERIZED/blob/master/docker/docker-compose.override.yml "docker-compose.yml") file:
 
-```
+```bash
 docker compose build
 ```
 
 For more information on using multiple compose files [see here](https://docs.docker.com/compose/production/). You can also find a prebuilt docker image from [Docker Hub](https://hub.docker.com/r/bleala/postfix/ "Docker Hub"), which can be pulled with this command:
 
-```
+```bash
 docker pull bleala/postfix:latest
 ```
 
 ---
 
 ## Versions
+
 **1.0.4 - 01.09.2025:**
+
 * Dependencies Update
 * Postfix Version: 3.10.4
 * Alpine Version: 3.22.1
 
 **Current Versions:**<br>
+
 * Postfix 3.10.4, Alpine 3.22.1
 
 <details>
@@ -290,5 +299,7 @@ docker pull bleala/postfix:latest
 </details>
 
 ---
+
 ### Hope you enjoy it! :)
+
 ---
