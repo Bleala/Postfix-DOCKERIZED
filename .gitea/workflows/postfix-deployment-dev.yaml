@@ -29,6 +29,7 @@ env:
   REGISTRY_DOCKERHUB: ${{ vars.REGISTRY_DOCKERHUB }}
   REGISTRY_GITHUB: ${{ vars.REGISTRY_GITHUB }}
   REGISTRY_QUAY: ${{ vars.REGISTRY_QUAY }}
+  SHELLCHECK_EXCLUDE_ISSUES: ${{ vars.SHELLCHECK_EXCLUDE_ISSUES }}
   SHELLCHECK_EXCLUDE_PATHS: ${{ vars.SHELLCHECK_EXCLUDE_PATHS }}
   USERNAME_DOCKERHUB: ${{ vars.USERNAME_DOCKERHUB }}
   USERNAME_GITHUB: ${{ vars.USERNAME_GITHUB }}
@@ -63,6 +64,7 @@ jobs:
         id: shell-linter
         uses: Azbagheri/shell-linter@30a9cf3f6cf25c08fc98f10d7dc4167f7b5c0c00 # v0.8.0
         with:
+          exclude-issues: ${{ env.SHELLCHECK_EXCLUDE_ISSUES }}
           exclude-paths: ${{ env.SHELLCHECK_EXCLUDE_PATHS }}
 
       # https://github.com/marketplace/actions/docker-hub-description
