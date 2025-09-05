@@ -1,3 +1,4 @@
+---
 name: Container Build Check 🐳✅
 run-name: Container Build Check 🐳✅
 
@@ -6,20 +7,22 @@ on:
     branches:
       - main
     paths:
-      - 'docker/**'
+      - 'docker/files/**'
+      - 'docker/Dockerfile'
   pull_request:
-    branches: 
+    branches:
       - main
       - dev
     paths:
-      - 'docker/**'
+      - 'docker/files/**'
+      - 'docker/Dockerfile'
   workflow_dispatch:
     inputs:
       source:
         description: 'Specify the branch/tag to build (default: main)'
         required: false
         default: 'main'
-        type: string 
+        type: string
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
@@ -56,7 +59,7 @@ jobs:
     with:
       # first needed by postfix, others will be fixed later
       exclude_issues: ${{ vars.SHELLCHECK_EXCLUDE_ISSUES }}
-      exclude_paths:  ${{ vars.SHELLCHECK_EXCLUDE_PATHS }}
+      exclude_paths: ${{ vars.SHELLCHECK_EXCLUDE_PATHS }}
       ref: ${{ (github.event_name == 'pull_request' && github.event.pull_request.head.sha) || (github.event_name == 'workflow_dispatch' && github.event.inputs.source) || github.ref }}
     permissions:
       # for actions/checkout to fetch code
