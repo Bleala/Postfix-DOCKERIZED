@@ -4,30 +4,32 @@
 FROM alpine:3.22.2
 
 # Build Arguments
-ARG ALPINE_VERSION="3.22.1" \
-        IMAGE_VERSION="1.0.4" \
-        POSTFIX_VERSION="3.10.4"
+ARG ALPINE_VERSION="3.22.2" \
+      IMAGE_VERSION="1.0.5" \
+      POSTFIX_VERSION="3.10.4"
 
 # Copy Files
 COPY files /files
 
 # Install packages and dependencies
-RUN apk --no-cache add apk-tools=~2.14.9 \
-    && apk --no-cache add bash=~5.2.37 \
-    && apk --no-cache add gawk=~5.3.2 \
-    && apk --no-cache add cyrus-sasl=~2.1.28 \
-    && apk --no-cache add cyrus-sasl-login=~2.1.28 \
-    && apk --no-cache add cyrus-sasl-crammd5=~2.1.28 \
-    && apk --no-cache add mailx=~8.1.2 \
-    && apk --no-cache add postfix=~3.10.4 \
+RUN apk update && \
+    apk add --no-cache \
+      apk-tools=~2.14.9 \
+      bash=~5.2.37 \
+      gawk=~5.3.2 \
+      cyrus-sasl=~2.1.28 \
+      cyrus-sasl-login=~2.1.28 \
+      cyrus-sasl-crammd5=~2.1.28 \
+      mailx=~8.1.2 \
+      postfix=~3.10.4 && \
     # Create log directories
-    && mkdir -p /var/log/supervisor/ /var/run/supervisor/ \
+    mkdir -p /var/log/supervisor/ /var/run/supervisor/ && \
     # Allow all interfaces
-    && sed -i -e 's/inet_interfaces = localhost/inet_interfaces = all/g' /etc/postfix/main.cf \
+    sed -i -e 's/inet_interfaces = localhost/inet_interfaces = all/g' /etc/postfix/main.cf && \
     # Make start script executable
-    && chmod +x /files/run.sh \
+    chmod +x /files/run.sh && \
     # Build a new copy of the alias database
-    && newaliases
+    newaliases
 
 # Set build date argument here, because caching would break otherwise
 # It is set during the build process in the reusable workflow
