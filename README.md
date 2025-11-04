@@ -5,7 +5,9 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/bleala/postfix?style=flat-square&label=Docker%20Pulls)](https://hub.docker.com/r/bleala/postfix/)
 [![Container Build Check 🐳✅](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml/badge.svg)](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml)
 
-A simple [Postfix](https://www.postfix.org/ "Postfix Homepage") SMTP TLS relay docker [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image") based image with no local authentication enabled (to be run in a secure LAN).
+A simple [Postfix](https://www.postfix.org/ "Postfix Homepage") SMTP TLS relay docker [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image") based image with multiple (possible) use cases.
+
+This image supports inbound TLS (STARTTLS/SMTPS) and optional SASL authentication for clients, with multiple configurable security modes (IP based, authentication based or mTLS).
 
 ## About Postfix
 
@@ -124,10 +126,59 @@ docker run -d --name postfix -p "25:25"  \
 
 But since docker compose is easier to maintain, I'll give you a valid docker compose example:
 
+```docker-compose.yml
+---
+networks:
+  postfix:
+    name: postfix
+    driver: bridge
+
+secrets:
+  smtp_password:
+    file: $SECRETSDIR/smtp_password
+
+services:
+  # Postfix SMTP Relay - Simple Postfix SMTP TLS relay docker alpine based image with multiple (possible) use cases.
+  # https://hub.docker.com/r/bleala/postfix/
+  # https://github.com/Bleala/Postfix-DOCKERIZED
+  postfix:
+    image: bleala/postfix:latest
+    container_name: postfix
+    hostname: postfix
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    env_file:
+      - path: .env
+        required: false
+    environment:
+      SERVER_HOSTNAME: mail.example.com
+      SMTP_SERVER: mail.example.com
+      SMTP_PORT: 465
+      SMTP_USERNAME: user@example.com
+      SMTP_PASSWORD_FILE: /run/secrets/smtp_password
+      SMTP_NETWORKS: 192.168.0.1/24
+      LOG_SUBJECT: yes
+    networks:
+      postfix: {}
+    ports:
+      - target: 25
+        published: 25
+        protocol: tcp
+        mode: host
+    volumes:
+      - type: bind
+        source: /etc/localtime
+        target: /etc/localtime
+        read_only: true
+    secrets:
+      - source: smtp_password
+```
+
+If you want to configure inbound TLS, SASL authentication and/or mTLS here is a full blown docker compose example:
+
 ```docker compose.yml
 ---
-version: "3.9"
-
 networks:
   postfix:
     name: postfix
@@ -136,9 +187,15 @@ networks:
 secrets:
   smtp_password:
     file: /path/to/your/secret/file/smtp_password
+  smtp_username:
+    file: /path/to/your/secret/file/smtp_username
+  smtpd_auth_password:
+    file: /path/to/your/secret/file/smtpd_auth_password
+  smtpd_auth_username:
+    file: /path/to/your/secret/file/smtpd_auth_username
 
 services:
-  # Postfix SMTP Relay - Simple Postfix SMTP TLS relay docker alpine based image with no local authentication enabled (to be run in a secure LAN).
+  # Postfix SMTP Relay - Simple Postfix SMTP TLS relay docker alpine based image with multiple (possible) use cases.
   # https://hub.docker.com/r/bleala/postfix
   # https://github.com/Bleala/Postfix-DOCKERIZED
   postfix:
@@ -148,50 +205,128 @@ services:
     restart: unless-stopped
     security_opt:
       - no-new-privileges:true
+    env_file:
+      - path: .env
+        required: false
     environment:
-      # Mandatory: Server address of the SMTP server to use.
-      SMTP_SERVER: ''
-      # Optional: (Default value: 587) Port address of the SMTP server to use.
-      SMTP_PORT: ''
-      # Optional: Username to authenticate with.
-      SMTP_USERNAME: ''
-      # Optional (Mandatory if SMTP_USERNAME is set): Password of the SMTP user. (Not needed if SMTP_PASSWORD_FILE is used)
-      SMTP_PASSWORD: ''
+      ### Outbound Relay Configuration ###
       # Mandatory: Server hostname for the Postfix container. Emails will appear to come from the hostname's domain.
-      SERVER_HOSTNAME: ''
-      # Optional: This will add a header for tracking messages upstream. Helpful for spam filters. Will appear as "RelayTag: ${SMTP_HEADER_TAG}" in the email headers.
-      SMTP_HEADER_TAG: ''
+      SERVER_HOSTNAME: 'mail.example.com'
+      # Mandatory: Server address of the SMTP server to use.
+      SMTP_SERVER: 'mail.example.com'
+      # Optional: (Default value: 587) Port address of the SMTP server to use.
+      SMTP_PORT: '25'
+      # Optional: Username to authenticate with. (Not needed if SMTP_USERNAME_FILE is used)
+      SMTP_USERNAME: 'my_user'
+      # Optional (Mandatory if SMTP_USERNAME is set): Password of the SMTP user. (Not needed if SMTP_PASSWORD_FILE is used)
+      SMTP_PASSWORD: 'my_password'
+      # Optional: Set this to a mounted file containing the username, to avoid usernames in env variables.
+      SMTP_USERNAME_FILE: '/run/secrets/smtp_username'
+      # Optional: Set this to a mounted file containing the password, to avoid passwords in env variables.
+      SMTP_PASSWORD_FILE: '/run/secrets/smtp_password'
+      # Optional: Path to a file (PEM) containing trusted CAs for verifying the OUTBOUND server (SMTP_SERVER).
+      # Use either SMTP_TLS_CA_FILE or SMTP_TLS_CA_PATH.
+      SMTP_TLS_CA_FILE: '/etc/postfix/certs/my-homelab-ca.crt'
+      # Optional: Path to a directory containing trusted CAs (PEM) for verifying the OUTBOUND server (SMTP_SERVER).
+      # Use either SMTP_TLS_CA_FILE or SMTP_TLS_CA_PATH.
+      SMTP_TLS_CA_PATH: '/etc/postfix/certs/ca-directory'
+
+      ### IP & SASL Authentication Configuration ###
       # Optional: Setting this will allow you to add additional, comma seperated, subnets to use the relay. Used like SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'.
       SMTP_NETWORKS: ''
-      # Optional: Set this to a mounted file containing the password, to avoid passwords in env variables.
-      SMTP_PASSWORD_FILE: ''
+      # Optional: Set the security mode for inbound relaying.
+      # 'mynetworks_only': (Default) Only clients from SMTP_NETWORKS can relay. SASL is disabled.
+      # 'sasl_only': Only authenticated SASL users can relay. Client IP is ignored.
+      # 'ip_or_sasl': Clients from SMTP_NETWORKS OR authenticated SASL users can relay.
+      # 'ip_and_sasl': Clients must be from SMTP_NETWORKS AND be authenticated SASL users.
+      # 'mtls_only': Only clients with a valid, trusted certificate (via SMTPD_TLS_CA_FILE/PATH) can relay.
+      # 'ip_and_mtls': Clients must be from SMTP_NETWORKS AND have a valid, trusted certificate.
+      SMTPD_AUTH_MODE: 'mynetworks_only'
+      # Optional: (Mandatory for SASL modes) Username for inbound SASL authentication. (Not needed if SMTPD_AUTH_USERNAME_FILE is used)
+      SMTPD_AUTH_USERNAME: 'my_user'
+      # Optional: (Mandatory for SASL modes) Password for inbound SASL authentication. (Not needed if SMTPD_AUTH_PASSWORD_FILE is used)
+      SMTPD_AUTH_PASSWORD: 'my_password'
+      # Optional: Set this to a mounted file containing the inbound auth username, to avoid usernames in env variables.
+      SMTPD_AUTH_USERNAME_FILE: '/run/secrets/smtpd_auth_username'
+      # Optional: Set this to a mounted file containing the inbound auth password, to avoid passwords in env variables.
+      SMTPD_AUTH_PASSWORD_FILE: '/run/secrets/smtpd_auth_password'
+
+      ### Inbound TLS Configuration ###
+      # Optional: (Default: no) Set to 'yes' to enable inbound STARTTLS (Port 25) and SMTPS (Port 465) and Submission (Port 587).
+      SMTPD_TLS_ENABLED: 'yes'
+      # Optional: (Default: no) Set to 'yes' to force *global* TLS encryption (smtpd_tls_security_level=encrypt).
+      # This will break clients on Port 25 that do not support STARTTLS. Only use in controlled environments.
+      SMTPD_TLS_FORCED: 'no'
+      # Optional (Mandatory if SMTPD_TLS_ENABLED is 'yes'): (Default: /etc/postfix/certs/chain.pem) Path inside the container to your combined TLS chain file.
+      # This file MUST contain (in this order): 1. Private Key, 2. Server Certificate, 3. Intermediate CA(s)
+      # Example: cat privkey.pem fullchain.pem > /path/to/your/certs/chain.pem
+      # Can be multiple keys/certs combined in one file.
+      SMTPD_TLS_CHAIN_FILE: '/etc/postfix/certs/chain.pem'
+      # Optional: Path to a file containing trusted CAs (PEM format) for verifying client certificates (mTLS) (Required for 'mtls_only' or 'ip_and_mtls' modes).
+      # Use either SMTPD_TLS_CA_FILE or SMTPD_TLS_CA_PATH.
+      SMTPD_TLS_CA_FILE: '/etc/postfix/certs/my-homelab-ca.crt'
+      # Optional: Path to a directory containing trusted CAs (PEM format) for verifying client certificates (mTLS) (Required for 'mtls_only' or 'ip_and_mtls' modes).
+      # Use either SMTPD_TLS_CA_FILE or SMTPD_TLS_CA_PATH.
+      SMTPD_TLS_CA_PATH: '/etc/postfix/certs/ca-directory'
+      # Optional: (Default: no) Set to 'yes' to enable modern TLS hardening (force TLSv1.2+, high ciphers, server preference, authentication only over TLS).
+      TLS_HARDENING_ENABLED: 'yes'
+
+      ### Rate Limiting Options ###
+      # Optional: (Default: unset) Max connections per minute from the same client.
+      SMTPD_CLIENT_CONN_RATE_LIMIT: '20'
+      # Optional: (Default: unset) Max messages per minute from the same client.
+      SMTPD_CLIENT_MSG_RATE_LIMIT: '50'
+      # Optional: (Default: unset) Max recipients per minute from the same client.
+      SMTPD_CLIENT_RCPT_RATE_LIMIT: '100'
+
+      ### Misc. Options ###
+      # Optional: (Default: no) Set to 'yes' to enable debug logging.
+      DEBUG: 'yes'
+      # Optional: This will add a header for tracking messages upstream. Helpful for spam filters. Will appear as "RelayTag: ${SMTP_HEADER_TAG}" in the email headers.
+      SMTP_HEADER_TAG: ''
       # Optional: Set this to yes to always add missing From:, To:, Date: or Message-ID: headers.
       ALWAYS_ADD_MISSING_HEADERS: 'yes'
       # Optional: This will rewrite the from address overwriting it with the specified address for all email being relayed.
       OVERWRITE_FROM: "Your Name <email@company.com>"
-      # Optional: This will use allow you to set a custom $mydestination value. Default is localhost.
+      # Optional: This will allow you to set a custom $mydestination value. Default is localhost.
       DESTINATION: ''
       # Optional: This will output the subject line of messages in the log.
       LOG_SUBJECT: 'yes'
       # Optional: This will disable (no) or enable (yes) the use of SMTPUTF8
       SMTPUTF8_ENABLE: 'no'
-      # Optional: This will use allow you to set a custom $message_size_limit value. Default is 10240000.
+      # Optional: This will allow you to set a custom $message_size_limit value. Default is 10240000.
       MESSAGE_SIZE_LIMIT: ''
-    env_file:
-      - .env
     networks:
       postfix: {}
     ports:
+      # SMTP (Port 25) (Normal)
       - target: 25
         published: 25
         protocol: tcp
         mode: host
+      # SMTPS (Port 465) (Implicit TLS)
+      - target: 465
+        published: 465
+        protocol: tcp
+        mode: host
+      # Submission (Port 587) (STARTTLS)
+      - target: 587
+        published: 587
+        protocol: tcp
+        mode: host
     secrets:
-      - smtp_password
+      - source: smtp_password
+      - source: smtp_username
+      - source: smtpd_auth_password
+      - source: smtpd_auth_username
     volumes:
       - type: bind
         source: /etc/localtime
         target: /etc/localtime
+        read_only: true
+      - type: bind
+        source: /path/to/your/certs
+        target: /etc/postfix/certs
         read_only: true
 ```
 
@@ -216,7 +351,7 @@ docker logs -f postfix
 ### Google specifics
 
 Gmail by default [does not allow email clients that don't use OAUTH 2](http://googleonlinesecurity.blogspot.co.uk/2014/04/new-security-measures-will-affect-older.html) for authentication (like Thunderbird or Outlook). First you need to enable access to "Less secure apps" on your
-[google settings](https://www.google.com/settings/security/lesssecureapps).
+[Google settings](https://www.google.com/settings/security/lesssecureapps).
 
 Also take into account that email `From:` header will contain the email address of the account being used to
 authenticate against the Gmail SMTP server (SMTP_USERNAME), the one on the email will be ignored by Gmail unless you [add it as an alias](https://support.google.com/mail/answer/22370).
@@ -233,21 +368,38 @@ You can set fifteen different environment variables if you want to:
 
 | **Variable** | **Info** | **Value** |
 |:----:|:----:|:----:|
-|   `SMTP_SERVER`   |   Server address of the SMTP server to use   |   Mandatory, default to `unset`  |
-|   `SERVER_HOSTNAME`   |   Server hostname for the Postfix container <br> Emails will appear to come from the hostname's domain   |   Mandatory, default to `unset`   |
-|   `SMTP_PORT`   |   Port address of the SMTP server to use   |   Optional, default value is `587`   |
-|   `SMTP_USERNAME`   |   Username to authenticate with   |   Optional, default to `unset`   |
-|   `SMTP_PASSWORD`   |   Password of the SMTP user <br> If `SMTP_PASSWORD_FILE` is set, not needed   |   Mandatory, if `SMTP_USERNAME` is set <br> Default to `unset`   |
-|   `SMTP_HEADER_TAG`   |   This will add a header for tracking messages upstream <br> Helpful for spam filters <br> Will appear as "RelayTag: ${SMTP_HEADER_TAG}" in the email headers   |   Optional, default to `unset`   |
-|   `SMTP_NETWORKS`   |   Setting this will allow you to add additional, comma seperated, subnets to use the relay <br> Used like `-e SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'`   |   Optional, default to `unset`   |
-|   `SMTP_USERNAME_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_USERNAME_FILE=/secrets/smtp_username`   |   Optional, default to `unset`   |
-|   `SMTP_PASSWORD_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_PASSWORD_FILE=/secrets/smtp_username`   |   Optional, default to `unset`   |
-|   `ALWAYS_ADD_MISSING_HEADERS`   |   This is related to the [always\_add\_missing\_headers](http://www.postfix.org/postconf.5.html#always_add_missing_headers) Postfix option <br> If set to `yes`, Postfix will always add missing headers among `From:`, `To:`, `Date:` or `Message-ID:`   |   Optional, default to `no`   |
-|   `OVERWRITE_FROM`   |   This will rewrite the from address overwriting it with the specified address for all email being relayed <br> Example settings: <br> OVERWRITE_FROM=<email@company.com> <br> OVERWRITE_FROM="Your Name" <email@company.com>   |   Optional, default to `unset`   |
-|   `DESTINATION`   |   This will define a list of domains from which incoming messages will be accepted   |   Optional, default to `unset`   |
-|   `LOG_SUBJECT`   |   This will output the subject line of messages in the log   |   Optional, default to `no`   |
-|   `SMTPUTF8_ENABLE`   |   This will enable or disable support for SMTPUTF8 <br> Valid values are `no` to disable and `yes` to enable <br> Not setting this variable will use the postfix default, which is `yes`.   |   Optional, default to `yes`   |
-|   `MESSAGE_SIZE_LIMIT`   |   This will change the default limit of 10240000 bytes (10MB)   |   Optional, default to `10240000`   |
+|   `SERVER_HOSTNAME`   |   Server hostname for the Postfix container. <br> Emails will appear to come from the hostnames domain.   |   Mandatory, default to `unset`   |
+|   `SMTP_SERVER`   |   Server address of the SMTP server to use.   |   Mandatory, default to `unset`  |
+|   `SMTP_PORT`   |   Port address of the SMTP server to use.   |   Optional, default value is `587`   |
+|   `SMTP_USERNAME`   |   Username to authenticate with to SMTP_SERVER. <br> If `SMTP_USERNAME_FILE` is set, not needed.   |   Optional, default to `unset`   |
+|   `SMTP_PASSWORD`   |   Password of the SMTP user. <br> If `SMTP_PASSWORD_FILE` is set, not needed.   |   Mandatory, if `SMTP_USERNAME` is set <br> Default to `unset`   |
+|   `SMTP_USERNAME_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtp_username`.   |   Optional, default to `unset`   |
+|   `SMTP_PASSWORD_FILE`   |   Setting this to a mounted file containing the password, to avoid passwords in env variables. <br> Used like `-e SMTP_PASSWORD_FILE=/run/secrets/smtp_username`.   |   Optional, default to `unset`   |
+|   `SMTP_TLS_CA_FILE`   |   Path to a file (PEM) containing trusted CAs for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`.   |   Optional, default to `unset`   |
+|   `SMTP_TLS_CA_PATH`   |   Path to a directory containing trusted CAs (PEM) for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`.   |   Optional, default to `unset`   |
+|   `SMTP_NETWORKS`   |   Setting this will allow you to add additional, comma seperated, subnets to use the relay for. <br> Used like `SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'`.   |   Optional, default to `unset`   |
+|   `SMTPD_AUTH_MODE`   |   Set the security mode for inbound relaying.   |   Optional, default to `mynetworks_only` <br> Can be `mynetworks_only`, `sasl_only`, `ip_or_sasl`, `ip_and_sasl`, `mtls_only` or `ip_and_mtls`   |
+|   `SMTPD_AUTH_USERNAME`   |   Username for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_USERNAME_FILE` is used.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
+|   `SMTPD_AUTH_PASSWORD`   |   Password for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_PASSWORD_FILE` is used.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
+|   `SMTPD_AUTH_USERNAME_FILE`   |   Setting this to a mounted file containing the inbound username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`.   |   Optional, default to `unset`   |
+|   `SMTPD_AUTH_PASSWORD_FILE`   |   Setting this to a mounted file containing the inbound password, to avoid passwords in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`.   |   Optional, default to `unset`   |
+|   `SMTPD_TLS_ENABLED`   |   Set to `yes` to enable inbound TLS. <br> Port 25 (SMTP, opportunistic STARTTLS), Port 465 (SMTPS, implicit TLS) and Port 587 (Submission, STARTTLS).   |   Optional, default to `no`   |
+|   `SMTPD_TLS_FORCED`   |   Set to `yes` to force *global* TLS encryption (smtpd_tls_security_level=encrypt). <br> This will break clients on Port 25 that do not support STARTTLS.   |   Optional, default to `no`   |
+|   `SMTPD_TLS_CHAIN_FILE`   |   Path inside the container to your combined TLS chain file. <br> This file MUST contain (in this order): 1. Private Key, 2. Server Certificate, 3. Intermediate CA(s). <br> Can be multiple keys/certs combined in one file.   |   Optional, default to `/etc/postfix/certs/chain.pem` <br> Mandatory if `SMTPD_TLS_ENABLED` is `yes`   |
+|   `SMTPD_TLS_CA_FILE`   |   Path to a file containing trusted CAs (PEM format) for verifying client certificates (mTLS). <br> Use either `SMTPD_TLS_CA_FILE` or `SMTPD_TLS_CA_PATH`.   |   Optional, default to `unset` <br> Mandatory for mTLS modes   |
+|   `SMTPD_TLS_CA_PATH`   |   Path to a directory containing trusted CAs (PEM format) for verifying client certificates (mTLS). <br> Use either `SMTPD_TLS_CA_FILE` or `SMTPD_TLS_CA_PATH`.   |   Optional, default to `unset` <br> Mandatory for mTLS modes   |
+|   `TLS_HARDENING_ENABLED`   |   Set to `yes` to enable modern TLS hardening. <br> force TLSv1.2+, high ciphers, server preference, authentication only over TLS.   |   Optional, default to `no`   |
+|   `SMTPD_CLIENT_CONN_RATE_LIMIT`   |   Max connections per minute from the same client.   |   Optional, default to `unset`   |
+|   `SMTPD_CLIENT_MSG_RATE_LIMIT`   |   Max messages per minute from the same client.   |   Optional, default to `unset`   |
+|   `SMTPD_CLIENT_RCPT_RATE_LIMIT`   |   Max recipients per minute from the same client.   |   Optional, default to `unset`   |
+|   `DEBUG`   |   To enable debug logging.   |   Optional, default to `no`   |
+|   `SMTP_HEADER_TAG`   |   This will add a header for tracking messages upstream <br> Helpful for spam filters. <br> Will appear as `"RelayTag: ${SMTP_HEADER_TAG}"` in the email headers.   |   Optional, default to `unset`   |
+|   `ALWAYS_ADD_MISSING_HEADERS`   |   This is related to the [always\_add\_missing\_headers](http://www.postfix.org/postconf.5.html#always_add_missing_headers) Postfix option. <br> If set to `yes`, Postfix will always add missing headers among `From:`, `To:`, `Date:` or `Message-ID:`.   |   Optional, default to `no`   |
+|   `OVERWRITE_FROM`   |   This will rewrite the from address overwriting it with the specified address for all email being relayed. <br> Example settings: <br> OVERWRITE_FROM=<email@company.com> <br> OVERWRITE_FROM="Your Name" <email@company.com>   |   Optional, default to `unset`   |
+|   `DESTINATION`   |   This will define a domain for which incoming messages will be accepted. <br> To set a custom `$mydestination` value.   |   Optional, default to `unset`   |
+|   `LOG_SUBJECT`   |   This will output the subject line of messages in the log.   |   Optional, default to `unset`   |
+|   `SMTPUTF8_ENABLE`   |   Set to `yes` to enable or `no` to disable support for SMTPUTF8. <br> Not setting this variable will use the postfix default, which is `yes`.   |   Optional, default to `unset`   |
+|   `MESSAGE_SIZE_LIMIT`   |   This will change the default limit of 10240000 bytes (10MB). <br> This will allow you to set a custom `$message_size_limit` value.   |   Optional, default to `10485760`   |
 
 ---
 
@@ -276,18 +428,31 @@ docker pull bleala/postfix:latest
 
 ## Versions
 
+**1.1.0 - 03.11.2025:**
+
+* Inbound TLS (Implicit TLS or STARTTLS) Support
+* Possible TLS hardening
+* SASL Authentication available
+* Allow custom Root CAs
+* mTLS Authentication available
+* Rate limiting
+* Fix smtp_use_tls depecation warning
+* Expose port 465 (SMTPS) and 587 (Submission)
+* Postfix Version: 3.10.5
+* Alpine Version: 3.22.2
+
+**Current Versions:**<br>
+
+* Postfix 3.10.5, Alpine 3.22.2
+
+<details>
+<summary>Old Version History</summary><br>
+
 **1.0.4 - 01.09.2025:**
 
 * Dependencies Update
 * Postfix Version: 3.10.4
 * Alpine Version: 3.22.1
-
-**Current Versions:**<br>
-
-* Postfix 3.10.4, Alpine 3.22.1
-
-<details>
-<summary>Old Version History</summary><br>
 
 **1.0.3 - 09.01.2025:** Dependencies Update - Postfix 3.9.1, Alpine 3.21.2
 

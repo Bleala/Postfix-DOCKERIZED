@@ -1,15 +1,15 @@
-# Global Arguments
-ARG ALPINE_VERSION="3.22.2" \
-    IMAGE_VERSION="1.1.0" \
-    POSTFIX_VERSION="3.10.5"
+### Dockerfile for a Postfix email relay service###
 
 # Alpine Base Image
-FROM alpine:${ALPINE_VERSION} AS postfix
+FROM alpine:3.22.2
 
-# Set arguments
-ARG ALPINE_VERSION \
-    IMAGE_VERSION \
-    POSTFIX_VERSION
+# Build Arguments
+ARG ALPINE_VERSION="3.22.2" \
+      IMAGE_VERSION="1.0.5" \
+      POSTFIX_VERSION="3.10.4"
+
+# Copy Files
+COPY files /files
 
 # Install packages and dependencies
 RUN apk update && \
@@ -21,19 +21,15 @@ RUN apk update && \
       cyrus-sasl-login=~2.1.28 \
       cyrus-sasl-crammd5=~2.1.28 \
       mailx=~8.1.2 \
-      postfix=~3.10.5 && \
+      postfix=~3.10.4 && \
     # Create log directories
     mkdir -p /var/log/supervisor/ /var/run/supervisor/ && \
     # Allow all interfaces
     sed -i -e 's/inet_interfaces = localhost/inet_interfaces = all/g' /etc/postfix/main.cf && \
+    # Make start script executable
+    chmod +x /files/run.sh && \
     # Build a new copy of the alias database
     newaliases
-
-# Copy Files
-COPY files /files
-
-# Make start script executable
-RUN chmod +x /files/run.sh
 
 # Set build date argument here, because caching would break otherwise
 # It is set during the build process in the reusable workflow
@@ -45,16 +41,13 @@ LABEL org.opencontainers.image.authors="Bleala" \
       org.opencontainers.image.version="${IMAGE_VERSION}" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.title="Postfix-DOCKERIZED" \
-      org.opencontainers.image.description="Postfix - a simple SMTP TLS relay with multiple (possible) use cases. DOCKERIZED!" \
+      org.opencontainers.image.description="Postfix - a simple SMTP TLS relay with no local authentication enabled. DOCKERIZED!" \
       org.opencontainers.image.documentation="https://unbound.docs.nlnetlabs.nl/en/latest/" \
       org.opencontainers.image.url="https://github.com/Bleala/Postfix-DOCKERIZED" \
       org.opencontainers.image.source="https://github.com/Bleala/Postfix-DOCKERIZED"
 
-# Expose Postfix Ports
-# Port 25: SMTP (opportunistic STARTTLS)
-# Port 465: SMTPS (Implicit TLS)
-# Port 587: Submission (STARTTLS)
-EXPOSE 25 465 587
+# Expose Postfix Port
+EXPOSE 25
 
 # Cmd to run
 CMD ["/files/run.sh"]
