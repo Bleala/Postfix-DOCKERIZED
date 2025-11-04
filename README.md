@@ -294,7 +294,7 @@ services:
       DESTINATION: ''
       # Optional: This will output the subject line of messages in the log.
       LOG_SUBJECT: 'yes'
-      # Optional: This will disable (no) or enable (yes) the use of SMTPUTF8
+      # Optional: (Default: yes) This will disable (no) or enable (yes) the use of SMTPUTF8
       SMTPUTF8_ENABLE: 'no'
       # Optional: This will allow you to set a custom $message_size_limit value. Default is 10240000.
       MESSAGE_SIZE_LIMIT: ''

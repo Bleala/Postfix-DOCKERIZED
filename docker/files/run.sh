@@ -498,11 +498,16 @@ then
   echo "Enabling logging of subject line"
 fi
 
+# Default to yes SMTPUTF8 support if not set
+SMTPUTF8_ENABLE="${SMTPUTF8_ENABLE:-yes}"
 # Set SMTPUTF8
 if [[ "${SMTPUTF8_ENABLE}" == "yes" ]]
 then
   add_config_value "smtputf8_enable" "${SMTPUTF8_ENABLE}"
   echo "Setting configuration option smtputf8_enable with value: ${SMTPUTF8_ENABLE}"
+else
+  add_config_value "smtputf8_enable" "no"
+  echo "Setting configuration option smtputf8_enable with value: no"
 fi
 
 # Overwrite From header
