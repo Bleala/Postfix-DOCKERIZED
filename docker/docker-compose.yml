@@ -63,10 +63,12 @@ services:
       # 'ip_and_mtls': Clients must be from SMTP_NETWORKS AND have a valid, trusted certificate.
       SMTPD_AUTH_MODE: 'mynetworks_only'
       # Optional: (Mandatory for SASL modes) Username for inbound SASL authentication. (Not needed if SMTPD_AUTH_USERNAME_FILE is used)
+      # Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.
       SMTPD_AUTH_USERNAME: 'my_user'
       # Optional: (Mandatory for SASL modes) Password for inbound SASL authentication. (Not needed if SMTPD_AUTH_PASSWORD_FILE is used)
       SMTPD_AUTH_PASSWORD: 'my_password'
       # Optional: Set this to a mounted file containing the inbound auth username, to avoid usernames in env variables.
+      # Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.
       SMTPD_AUTH_USERNAME_FILE: '/run/secrets/smtpd_auth_username'
       # Optional: Set this to a mounted file containing the inbound auth password, to avoid passwords in env variables.
       SMTPD_AUTH_PASSWORD_FILE: '/run/secrets/smtpd_auth_password'

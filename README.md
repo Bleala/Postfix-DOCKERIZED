@@ -243,10 +243,12 @@ services:
       # 'ip_and_mtls': Clients must be from SMTP_NETWORKS AND have a valid, trusted certificate.
       SMTPD_AUTH_MODE: 'mynetworks_only'
       # Optional: (Mandatory for SASL modes) Username for inbound SASL authentication. (Not needed if SMTPD_AUTH_USERNAME_FILE is used)
+      # Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.
       SMTPD_AUTH_USERNAME: 'my_user'
       # Optional: (Mandatory for SASL modes) Password for inbound SASL authentication. (Not needed if SMTPD_AUTH_PASSWORD_FILE is used)
       SMTPD_AUTH_PASSWORD: 'my_password'
       # Optional: Set this to a mounted file containing the inbound auth username, to avoid usernames in env variables.
+      # Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.
       SMTPD_AUTH_USERNAME_FILE: '/run/secrets/smtpd_auth_username'
       # Optional: Set this to a mounted file containing the inbound auth password, to avoid passwords in env variables.
       SMTPD_AUTH_PASSWORD_FILE: '/run/secrets/smtpd_auth_password'
@@ -379,9 +381,9 @@ You can set fifteen different environment variables if you want to:
 |   `SMTP_TLS_CA_PATH`   |   Path to a directory containing trusted CAs (PEM) for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`.   |   Optional, default to `unset`   |
 |   `SMTP_NETWORKS`   |   Setting this will allow you to add additional, comma seperated, subnets to use the relay for. <br> Used like `SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'`.   |   Optional, default to `unset`   |
 |   `SMTPD_AUTH_MODE`   |   Set the security mode for inbound relaying.   |   Optional, default to `mynetworks_only` <br> Can be `mynetworks_only`, `sasl_only`, `ip_or_sasl`, `ip_and_sasl`, `mtls_only` or `ip_and_mtls`   |
-|   `SMTPD_AUTH_USERNAME`   |   Username for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_USERNAME_FILE` is used.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
+|   `SMTPD_AUTH_USERNAME`   |   Username for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_USERNAME_FILE` is used. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
 |   `SMTPD_AUTH_PASSWORD`   |   Password for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_PASSWORD_FILE` is used.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
-|   `SMTPD_AUTH_USERNAME_FILE`   |   Setting this to a mounted file containing the inbound username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`.   |   Optional, default to `unset`   |
+|   `SMTPD_AUTH_USERNAME_FILE`   |   Setting this to a mounted file containing the inbound username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.   |   Optional, default to `unset`   |
 |   `SMTPD_AUTH_PASSWORD_FILE`   |   Setting this to a mounted file containing the inbound password, to avoid passwords in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`.   |   Optional, default to `unset`   |
 |   `SMTPD_TLS_ENABLED`   |   Set to `yes` to enable inbound TLS. <br> Port 25 (SMTP, opportunistic STARTTLS), Port 465 (SMTPS, implicit TLS) and Port 587 (Submission, STARTTLS).   |   Optional, default to `no`   |
 |   `SMTPD_TLS_FORCED`   |   Set to `yes` to force *global* TLS encryption (smtpd_tls_security_level=encrypt). <br> This will break clients on Port 25 that do not support STARTTLS.   |   Optional, default to `no`   |
