@@ -358,8 +358,8 @@ then
     then
       echo "SASL database created."
       # Fix permissions: Set owner to root:postfix to avoid "not owned by root" warning
-      chown root:postfix /etc/postfix/sasldb2
-      chmod 640 /etc/postfix/sasldb2
+      chown root:root /etc/postfix/sasldb2
+      chmod 644 /etc/postfix/sasldb2
     
       # Configure Postfix main.cf for SASL
       add_config_value "smtpd_sasl_auth_enable" "yes"
