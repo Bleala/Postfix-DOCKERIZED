@@ -425,10 +425,12 @@ then
   then
     echo "Found SASL users in SMTPD_AUTH_USERS env var. Processing users..."
     # Read multi-line var line by line
-    echo "${SMTPD_AUTH_USERS}" | while IFS= read -r line
+    # Use 'while ... done <<< "$VAR"' to avoid subshell piping
+    # This ensures USERS_ADDED_TO_DB is set in the main scripts scope
+    while IFS= read -r line
     do
       process_sasl_user "${line}"
-    done
+    done <<< "${SMTPD_AUTH_USERS}"
   
   # Priority 3: Fallback to single-user env vars
   elif [[ -n "${SMTPD_AUTH_USERNAME}" ]] && [[ -n "${SMTPD_AUTH_PASSWORD}" ]]
