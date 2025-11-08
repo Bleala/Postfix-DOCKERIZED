@@ -76,7 +76,7 @@ jobs:
           username: ${{ env.USERNAME_DOCKERHUB }}
           password: ${{ secrets.TOKEN_DOCKERHUB }}
           repository: ${{ env.USERNAME_DOCKERHUB }}/${{ env.IMAGE_NAME }}
-          short-description: "Postfix - a simple SMTP TLS relay with no local authentication enabled. DOCKERIZED!"
+          short-description: "Postfix - Simple Postfix SMTP TLS relay alpine based image with multiple use cases. DOCKERIZED!"
 
       # https://github.com/marketplace/actions/docker-metadata-action
       - name: Docker Metadata (Tagging) 🏷️
