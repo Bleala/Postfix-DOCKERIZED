@@ -326,6 +326,9 @@ add_config_value "mynetworks" "${nets}"
 # Default to 'mynetworks_only' if not set
 SMTPD_AUTH_MODE="${SMTPD_AUTH_MODE:-mynetworks_only}"
 
+# Default to 'yes' if not set
+SMTPD_AUTH_APPEND_DOMAIN="${SMTPD_AUTH_APPEND_DOMAIN:-yes}"
+
 # Configure SASL if mode requires it AND credentials are provided
 if [[ "${SMTPD_AUTH_MODE}" =~ sasl ]]
 then
@@ -349,9 +352,16 @@ then
     } > /etc/sasl2/smtpd.conf
     
     # Create user in sasldb
-    # Clients will need to authenticate as 'username@domain'
-    echo "Creating SASL user \"${SMTPD_AUTH_USERNAME}@${DOMAIN}\"."
-    echo "${SMTPD_AUTH_PASSWORD}" | saslpasswd2 -c -p -u "${DOMAIN}" -f /etc/postfix/sasldb2 "${SMTPD_AUTH_USERNAME}"
+    if [[ "${SMTPD_AUTH_APPEND_DOMAIN}" == "yes" ]]
+    then
+      # Clients will need to authenticate as 'username@domain'
+      echo "Creating SASL user \"${SMTPD_AUTH_USERNAME}@${DOMAIN}\"."
+      echo "${SMTPD_AUTH_PASSWORD}" | saslpasswd2 -c -p -u "${DOMAIN}" -f /etc/postfix/sasldb2 "${SMTPD_AUTH_USERNAME}"
+    else
+      # Clients will need to authenticate as 'username' (without domain)
+      echo "Creating SASL user \"${SMTPD_AUTH_USERNAME}\"."
+      echo "${SMTPD_AUTH_PASSWORD}" | saslpasswd2 -c -p -f /etc/postfix/sasldb2 "${SMTPD_AUTH_USERNAME}"
+    fi
     
     # Verify that sasldb2 file was created
     if [[ -f /etc/postfix/sasldb2 ]]

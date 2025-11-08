@@ -252,6 +252,8 @@ services:
       SMTPD_AUTH_USERNAME_FILE: '/run/secrets/smtpd_auth_username'
       # Optional: Set this to a mounted file containing the inbound auth password, to avoid passwords in env variables.
       SMTPD_AUTH_PASSWORD_FILE: '/run/secrets/smtpd_auth_password'
+      # Optional: (Default: yes) Set to 'no' to create the SASL user without appending the domain (e.g., 'user' instead of 'user@domain.com').
+      SMTPD_AUTH_APPEND_DOMAIN: 'yes'
 
       ### Inbound TLS Configuration ###
       # Optional: (Default: no) Set to 'yes' to enable inbound STARTTLS (Port 25) and SMTPS (Port 465) and Submission (Port 587).
@@ -385,6 +387,7 @@ You can set fifteen different environment variables if you want to:
 |   `SMTPD_AUTH_PASSWORD`   |   Password for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_PASSWORD_FILE` is used.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
 |   `SMTPD_AUTH_USERNAME_FILE`   |   Setting this to a mounted file containing the inbound username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.   |   Optional, default to `unset`   |
 |   `SMTPD_AUTH_PASSWORD_FILE`   |   Setting this to a mounted file containing the inbound password, to avoid passwords in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`.   |   Optional, default to `unset`   |
+|   `SMTPD_AUTH_APPEND_DOMAIN`   |   Set to `no` to create the SASL user without appending the domain (`username` instead of `username@domain.com`).   |   Optional, default to `yes`   |
 |   `SMTPD_TLS_ENABLED`   |   Set to `yes` to enable inbound TLS. <br> Port 25 (SMTP, opportunistic STARTTLS), Port 465 (SMTPS, implicit TLS) and Port 587 (Submission, STARTTLS).   |   Optional, default to `no`   |
 |   `SMTPD_TLS_FORCED`   |   Set to `yes` to force *global* TLS encryption (smtpd_tls_security_level=encrypt). <br> This will break clients on Port 25 that do not support STARTTLS.   |   Optional, default to `no`   |
 |   `SMTPD_TLS_CHAIN_FILE`   |   Path inside the container to your combined TLS chain file. <br> This file MUST contain (in this order): 1. Private Key, 2. Server Certificate, 3. Intermediate CA(s). <br> Can be multiple keys/certs combined in one file.   |   Optional, default to `/etc/postfix/certs/chain.pem` <br> Mandatory if `SMTPD_TLS_ENABLED` is `yes`   |
