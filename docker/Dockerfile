@@ -39,6 +39,10 @@ RUN chmod +x /files/run.sh
 # It is set during the build process in the reusable workflow
 ARG BUILD_DATE
 
+# Healthcheck to ensure Postfix master process is running
+HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+  CMD postfix status
+
 # Set labels
 LABEL org.opencontainers.image.authors="Bleala" \
       org.opencontainers.image.vendor="Bleala" \
