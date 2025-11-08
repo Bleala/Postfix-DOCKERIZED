@@ -9,6 +9,9 @@ secrets:
     file: /path/to/your/secret/file/smtp_password
   smtp_username:
     file: /path/to/your/secret/file/smtp_username
+  smtpd_auth_users:
+    file: /path/to/your/secret/file/sasl_users.txt
+  # Can be removed if you use the multiple users method
   smtpd_auth_password:
     file: /path/to/your/secret/file/smtpd_auth_password
   smtpd_auth_username:
@@ -62,6 +65,17 @@ services:
       # 'mtls_only': Only clients with a valid, trusted certificate (via SMTPD_TLS_CA_FILE/PATH) can relay.
       # 'ip_and_mtls': Clients must be from SMTP_NETWORKS AND have a valid, trusted certificate.
       SMTPD_AUTH_MODE: 'mynetworks_only'
+      # Optional: Path to the secret file containing SASL users (format: user:pass, one per line)
+      # This takes priority over SMTPD_AUTH_USERS.
+      SMTPD_AUTH_USERS_FILE: '/run/secrets/smtpd_auth_users'
+      # Optional: Alternative to file, provide users as a multi-line environment variable.
+      # Example: SMTPD_AUTH_USERS="user1:pass1\nuser2:pass2"
+      SMTPD_AUTH_USERS: |
+        user1:pass1
+        user2:pass2
+      # Optional: (Default: yes) Set to 'no' to create the SASL user without appending the domain (e.g., 'user' instead of 'user@domain.com').
+      SMTPD_AUTH_APPEND_DOMAIN: 'yes'
+      # The following are ignored if SMTPD_AUTH_USERS_FILE or SMTPD_AUTH_USERS is set.
       # Optional: (Mandatory for SASL modes) Username for inbound SASL authentication. (Not needed if SMTPD_AUTH_USERNAME_FILE is used)
       # Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.
       SMTPD_AUTH_USERNAME: 'my_user'
@@ -72,8 +86,6 @@ services:
       SMTPD_AUTH_USERNAME_FILE: '/run/secrets/smtpd_auth_username'
       # Optional: Set this to a mounted file containing the inbound auth password, to avoid passwords in env variables.
       SMTPD_AUTH_PASSWORD_FILE: '/run/secrets/smtpd_auth_password'
-      # Optional: (Default: yes) Set to 'no' to create the SASL user without appending the domain (e.g., 'user' instead of 'user@domain.com').
-      SMTPD_AUTH_APPEND_DOMAIN: 'yes'
 
       ### Inbound TLS Configuration ###
       # Optional: (Default: no) Set to 'yes' to enable inbound STARTTLS (Port 25) and SMTPS (Port 465) and Submission (Port 587).
@@ -141,6 +153,7 @@ services:
     secrets:
       - source: smtp_password
       - source: smtp_username
+      - source: smtpd_auth_users
       - source: smtpd_auth_password
       - source: smtpd_auth_username
     volumes:

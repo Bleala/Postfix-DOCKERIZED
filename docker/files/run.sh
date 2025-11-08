@@ -15,6 +15,8 @@ then
   set -x
 fi
 
+### Helper Functions ###
+
 # Function for Postfix config value add
 add_config_value() {
   # Local variables
@@ -44,6 +46,53 @@ add_config_value() {
   # Set Postfix config
   postconf -e "${key} = ${value}"
 }
+
+# Function to process a single SASL user line (user:pass)
+# Takes one argument: the line to process
+# Respects SMTPD_AUTH_APPEND_DOMAIN
+process_sasl_user() {
+  local line="${1}"
+  
+  # Skip empty lines or lines starting with #
+  if [[ -z "${line}" ]] || [[ "${line}" == \#* ]]; then
+    return
+  fi
+  
+  # Check if line contains a colon
+  if ! echo "${line}" | grep -q ':'; then
+    echo "WARNING: Skipping invalid SASL user line (format must be user:password): ${line}"
+    return
+  fi
+  
+  # Extract user and password
+  local user
+  local pass
+  user=$(echo "${line}" | cut -d':' -f1)
+  pass=$(echo "${line}" | cut -d':' -f2-)
+  
+  # Check for empty user or pass
+  if [[ -z "${user}" ]] || [[ -z "${pass}" ]]; then
+    echo "WARNING: Skipping SASL user with empty username or password."
+    return
+  fi
+  
+  # Create user in sasldb
+  if [[ "${SMTPD_AUTH_APPEND_DOMAIN}" == "yes" ]]
+  then
+    # Clients will need to authenticate as 'username@domain'
+    echo "Creating SASL user \"${user}@${DOMAIN}\"."
+    echo "${pass}" | saslpasswd2 -c -p -u "${DOMAIN}" -f /etc/postfix/sasldb2 "${user}"
+  else
+    # Clients will need to authenticate as 'username' (without domain)
+    echo "Creating SASL user \"${user}\"."
+    echo "${pass}" | saslpasswd2 -c -p -f /etc/postfix/sasldb2 "${user}"
+  fi
+  
+  # Mark that least one user has been added
+  USERS_ADDED_TO_DB="true"
+}
+
+### Environment Variable Processing ###
 
 # Read SMTP_PASSWORD from file to avoid unsecure env variables
 if [[ -n "${SMTP_PASSWORD_FILE}" ]]
@@ -105,6 +154,8 @@ then
   fi
 fi
 
+### Sanity Checks ###
+
 # Check if SMTP_SERVER variable is empty
 if [[ -z "${SMTP_SERVER}" ]]
 then
@@ -125,7 +176,7 @@ then
   exit 1
 fi
 
-# Check if SMTP_USERNAME variable is set, but SMTP_PASSWORD variable is empty
+# Check if (outbound) SMTP_USERNAME variable is set, but SMTP_PASSWORD variable is empty
 if [[ -n "${SMTP_USERNAME}" ]] && [[ -z "${SMTP_PASSWORD}" ]]
 then
   # Log error message
@@ -134,6 +185,8 @@ then
   # Exit Container
   exit 1
 fi
+
+### Base Configuration ###
 
 # Set SMTP Port, if not set use default value of 587
 SMTP_PORT="${SMTP_PORT:-587}"
@@ -190,6 +243,8 @@ fi
 
 # Bind to both IPv4 and IPv6
 add_config_value "inet_protocols" "all"
+
+### Inbound TLS Configuration ###
 
 # https://www.postfix.org/TLS_README.html
 # Configure Inbound TLS (SMTPS / STARTTLS)
@@ -286,6 +341,8 @@ else
   echo "Inbound TLS is DISABLED."
 fi
 
+### Network & Auth Configuration ###
+
 # Configure Relay Restrictions (mynetworks)
 # This logic runs always. Auth logic below will decide HOW it will be used.
 echo "Configuring mynetworks (trusted IPs)."
@@ -329,18 +386,19 @@ SMTPD_AUTH_MODE="${SMTPD_AUTH_MODE:-mynetworks_only}"
 # Default to 'yes' if not set
 SMTPD_AUTH_APPEND_DOMAIN="${SMTPD_AUTH_APPEND_DOMAIN:-yes}"
 
+# Global flag to track if any users were successfully added
+USERS_ADDED_TO_DB="false"
+
 # Configure SASL if mode requires it AND credentials are provided
 if [[ "${SMTPD_AUTH_MODE}" =~ sasl ]]
 then
   echo "Inbound SASL Authentication is ENABLED."
-  if [[ -n "${SMTPD_AUTH_USERNAME}" ]] && [[ -n "${SMTPD_AUTH_PASSWORD}" ]]
-  then
     
-    echo "Inbound SASL Authentication is being configured."
-    # Configure sasldb
-    echo "Configuring sasldb."
-    # Ensure the /etc/sasl2 directory exists before writing to it
-    mkdir -p /etc/sasl2
+  echo "Inbound SASL Authentication is being configured."
+  # Configure sasldb
+  echo "Configuring sasldb."
+  # Ensure the /etc/sasl2 directory exists before writing to it
+  mkdir -p /etc/sasl2
 
     # https://www.postfix.org/SASL_README.html
     # Create /etc/sasl2/smtpd.conf file
@@ -351,23 +409,43 @@ then
       echo "sasldb_path: /etc/postfix/sasldb2"
     } > /etc/sasl2/smtpd.conf
     
-    # Create user in sasldb
-    if [[ "${SMTPD_AUTH_APPEND_DOMAIN}" == "yes" ]]
-    then
-      # Clients will need to authenticate as 'username@domain'
-      echo "Creating SASL user \"${SMTPD_AUTH_USERNAME}@${DOMAIN}\"."
-      echo "${SMTPD_AUTH_PASSWORD}" | saslpasswd2 -c -p -u "${DOMAIN}" -f /etc/postfix/sasldb2 "${SMTPD_AUTH_USERNAME}"
-    else
-      # Clients will need to authenticate as 'username' (without domain)
-      echo "Creating SASL user \"${SMTPD_AUTH_USERNAME}\"."
-      echo "${SMTPD_AUTH_PASSWORD}" | saslpasswd2 -c -p -f /etc/postfix/sasldb2 "${SMTPD_AUTH_USERNAME}"
-    fi
-    
+  # Priority 1: Check for multi-user file
+  if [[ -n "${SMTPD_AUTH_USERS_FILE}" ]] && [[ -f "${SMTPD_AUTH_USERS_FILE}" ]]
+  then
+    echo "Found SASL users file at ${SMTPD_AUTH_USERS_FILE}."
+    echo "Processing users."
+    # Read file line by line
+    while IFS= read -r line
+    do
+      process_sasl_user "${line}"
+    done < "${SMTPD_AUTH_USERS_FILE}"
+  
+  # Priority 2: Check for multi-user env var
+  elif [[ -n "${SMTPD_AUTH_USERS}" ]]
+  then
+    echo "Found SASL users in SMTPD_AUTH_USERS env var. Processing users..."
+    # Read multi-line var line by line
+    echo "${SMTPD_AUTH_USERS}" | while IFS= read -r line
+    do
+      process_sasl_user "${line}"
+    done
+  
+  # Priority 3: Fallback to single-user env vars
+  elif [[ -n "${SMTPD_AUTH_USERNAME}" ]] && [[ -n "${SMTPD_AUTH_PASSWORD}" ]]
+  then
+    echo "Using SASL user from SMTPD_AUTH_USERNAME."
+    process_sasl_user "${SMTPD_AUTH_USERNAME}:${SMTPD_AUTH_PASSWORD}"
+  
+  fi
+  
+  # Check if any users were actually added
+  if [[ "${USERS_ADDED_TO_DB}" == "true" ]]
+  then
     # Verify that sasldb2 file was created
     if [[ -f /etc/postfix/sasldb2 ]]
     then
       echo "SASL database created."
-      # Fix permissions: Set owner to root:postfix to avoid "not owned by root" warning
+      # Fix permissions: Set owner to root:root to avoid "not owned by root" warning
       chown root:root /etc/postfix/sasldb2
       chmod 644 /etc/postfix/sasldb2
     
@@ -389,7 +467,7 @@ then
     fi
     
   else
-    echo "WARNING: SMTPD_AUTH_MODE set to '${SMTPD_AUTH_MODE}' but SMTPD_AUTH_USERNAME or SMTPD_AUTH_PASSWORD is not set."
+    echo "WARNING: SMTPD_AUTH_MODE set to '${SMTPD_AUTH_MODE}' but no valid SASL users were provided."
     echo "Falling back to 'mynetworks_only' mode."
     SMTPD_AUTH_MODE="mynetworks_only"
   fi
@@ -480,6 +558,8 @@ case "${SMTPD_AUTH_MODE}" in
         postconf -P "*/inet/smtpd_sasl_auth_enable=no"
         ;;
 esac
+
+### Misc. Configuration ###
 
 # Create sasl_passwd file with auth credentials (Outbound Auth)
 if [[ ! -f /etc/postfix/sasl_passwd ]] && [[ -n "${SMTP_USERNAME}" ]]
@@ -607,6 +687,8 @@ then
 else
   echo "TLS Hardening is DISABLED. Using Postfix/OpenSSL defaults."
 fi
+
+### Start Service ###
 
 # If host mounting /var/spool/postfix, we need to delete old pid file before
 # starting services

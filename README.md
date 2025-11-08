@@ -155,7 +155,7 @@ services:
       SERVER_HOSTNAME: mail.example.com
       SMTP_SERVER: mail.example.com
       SMTP_PORT: 465
-      SMTP_USERNAME: user@example.com
+      SMTP_USERNAME: user
       SMTP_PASSWORD_FILE: /run/secrets/smtp_password
       SMTP_NETWORKS: 192.168.0.1/24
       LOG_SUBJECT: yes
@@ -189,6 +189,9 @@ secrets:
     file: /path/to/your/secret/file/smtp_password
   smtp_username:
     file: /path/to/your/secret/file/smtp_username
+  smtpd_auth_users:
+    file: /path/to/your/secret/file/sasl_users.txt
+  # Can be removed if you use the multiple users method
   smtpd_auth_password:
     file: /path/to/your/secret/file/smtpd_auth_password
   smtpd_auth_username:
@@ -242,6 +245,17 @@ services:
       # 'mtls_only': Only clients with a valid, trusted certificate (via SMTPD_TLS_CA_FILE/PATH) can relay.
       # 'ip_and_mtls': Clients must be from SMTP_NETWORKS AND have a valid, trusted certificate.
       SMTPD_AUTH_MODE: 'mynetworks_only'
+      # Optional: Path to the secret file containing SASL users (format: user:pass, one per line)
+      # This takes priority over SMTPD_AUTH_USERS.
+      SMTPD_AUTH_USERS_FILE: '/run/secrets/smtpd_auth_users'
+      # Optional: Alternative to file, provide users as a multi-line environment variable.
+      # Example: SMTPD_AUTH_USERS="user1:pass1\nuser2:pass2"
+      SMTPD_AUTH_USERS: |
+        user1:pass1
+        user2:pass2
+      # Optional: (Default: yes) Set to 'no' to create the SASL user without appending the domain (e.g., 'user' instead of 'user@domain.com').
+      SMTPD_AUTH_APPEND_DOMAIN: 'yes'
+      # The following are ignored if SMTPD_AUTH_USERS_FILE or SMTPD_AUTH_USERS is set.
       # Optional: (Mandatory for SASL modes) Username for inbound SASL authentication. (Not needed if SMTPD_AUTH_USERNAME_FILE is used)
       # Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.
       SMTPD_AUTH_USERNAME: 'my_user'
@@ -252,8 +266,6 @@ services:
       SMTPD_AUTH_USERNAME_FILE: '/run/secrets/smtpd_auth_username'
       # Optional: Set this to a mounted file containing the inbound auth password, to avoid passwords in env variables.
       SMTPD_AUTH_PASSWORD_FILE: '/run/secrets/smtpd_auth_password'
-      # Optional: (Default: yes) Set to 'no' to create the SASL user without appending the domain (e.g., 'user' instead of 'user@domain.com').
-      SMTPD_AUTH_APPEND_DOMAIN: 'yes'
 
       ### Inbound TLS Configuration ###
       # Optional: (Default: no) Set to 'yes' to enable inbound STARTTLS (Port 25) and SMTPS (Port 465) and Submission (Port 587).
@@ -296,7 +308,7 @@ services:
       DESTINATION: ''
       # Optional: This will output the subject line of messages in the log.
       LOG_SUBJECT: 'yes'
-      # Optional: (Default: yes) This will disable (no) or enable (yes) the use of SMTPUTF8
+      # Optional: This will disable (no) or enable (yes) the use of SMTPUTF8
       SMTPUTF8_ENABLE: 'no'
       # Optional: This will allow you to set a custom $message_size_limit value. Default is 10240000.
       MESSAGE_SIZE_LIMIT: ''
@@ -321,6 +333,7 @@ services:
     secrets:
       - source: smtp_password
       - source: smtp_username
+      - source: smtpd_auth_users
       - source: smtpd_auth_password
       - source: smtpd_auth_username
     volumes:
@@ -383,11 +396,13 @@ You can set fifteen different environment variables if you want to:
 |   `SMTP_TLS_CA_PATH`   |   Path to a directory containing trusted CAs (PEM) for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`.   |   Optional, default to `unset`   |
 |   `SMTP_NETWORKS`   |   Setting this will allow you to add additional, comma seperated, subnets to use the relay for. <br> Used like `SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'`.   |   Optional, default to `unset`   |
 |   `SMTPD_AUTH_MODE`   |   Set the security mode for inbound relaying.   |   Optional, default to `mynetworks_only` <br> Can be `mynetworks_only`, `sasl_only`, `ip_or_sasl`, `ip_and_sasl`, `mtls_only` or `ip_and_mtls`   |
+|   `SMTPD_AUTH_USERS_FILE`   |   Path to a file (e.g., Docker Secret) containing SASL users. <br> Format: `user:password`, one per line. <br> Takes priority over `SMTPD_AUTH_USERS`.   |   Optional, default to `unset`   |
+|   `SMTPD_AUTH_USERS`   |   Multi-line string containing SASL users. <br> Format: `user:password`, one per line. <br> Used if `SMTPD_AUTH_USERS_FILE` is not set.   |   Optional, default to `unset`   |
+|   `SMTPD_AUTH_APPEND_DOMAIN`   |   Set to `no` to create the SASL user without appending the domain (`username` instead of `username@domain.com`).   |   Optional, default to `yes`   |
 |   `SMTPD_AUTH_USERNAME`   |   Username for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_USERNAME_FILE` is used. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
 |   `SMTPD_AUTH_PASSWORD`   |   Password for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_PASSWORD_FILE` is used.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
 |   `SMTPD_AUTH_USERNAME_FILE`   |   Setting this to a mounted file containing the inbound username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.   |   Optional, default to `unset`   |
 |   `SMTPD_AUTH_PASSWORD_FILE`   |   Setting this to a mounted file containing the inbound password, to avoid passwords in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`.   |   Optional, default to `unset`   |
-|   `SMTPD_AUTH_APPEND_DOMAIN`   |   Set to `no` to create the SASL user without appending the domain (`username` instead of `username@domain.com`).   |   Optional, default to `yes`   |
 |   `SMTPD_TLS_ENABLED`   |   Set to `yes` to enable inbound TLS. <br> Port 25 (SMTP, opportunistic STARTTLS), Port 465 (SMTPS, implicit TLS) and Port 587 (Submission, STARTTLS).   |   Optional, default to `no`   |
 |   `SMTPD_TLS_FORCED`   |   Set to `yes` to force *global* TLS encryption (smtpd_tls_security_level=encrypt). <br> This will break clients on Port 25 that do not support STARTTLS.   |   Optional, default to `no`   |
 |   `SMTPD_TLS_CHAIN_FILE`   |   Path inside the container to your combined TLS chain file. <br> This file MUST contain (in this order): 1. Private Key, 2. Server Certificate, 3. Intermediate CA(s). <br> Can be multiple keys/certs combined in one file.   |   Optional, default to `/etc/postfix/certs/chain.pem` <br> Mandatory if `SMTPD_TLS_ENABLED` is `yes`   |
