@@ -413,12 +413,18 @@ then
   if [[ -n "${SMTPD_AUTH_USERS_FILE}" ]] && [[ -f "${SMTPD_AUTH_USERS_FILE}" ]]
   then
     echo "Found SASL users file at ${SMTPD_AUTH_USERS_FILE}."
-    echo "Processing users."
-    # Read file line by line
-    while IFS= read -r line
-    do
-      process_sasl_user "${line}"
-    done < "${SMTPD_AUTH_USERS_FILE}"
+    # Check if file is not empty
+    if [[ -s "${SMTPD_AUTH_USERS_FILE}" ]]
+    then
+      echo "Processing users from file."
+      # Read file line by line
+      while IFS= read -r line
+      do
+        process_sasl_user "${line}"
+      done < "${SMTPD_AUTH_USERS_FILE}"
+    else
+      echo "WARNING: SASL users file ${SMTPD_AUTH_USERS_FILE} is empty."
+    fi
   
   # Priority 2: Check for multi-user env var
   elif [[ -n "${SMTPD_AUTH_USERS}" ]]
