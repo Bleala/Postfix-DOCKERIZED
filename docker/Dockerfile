@@ -40,7 +40,7 @@ RUN chmod +x /files/run.sh
 ARG BUILD_DATE
 
 # Healthcheck to ensure Postfix master process is running
-HEALTHCHECK --interval=10s --timeout=5s --start-period=10s --retries=3 \
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
   CMD postfix status
 
 # Set labels
