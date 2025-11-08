@@ -5,7 +5,7 @@
 [![Docker Pulls](https://img.shields.io/docker/pulls/bleala/postfix?style=flat-square&label=Docker%20Pulls)](https://hub.docker.com/r/bleala/postfix/)
 [![Container Build Check 🐳✅](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml/badge.svg)](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml)
 
-A simple [Postfix](https://www.postfix.org/ "Postfix Homepage") SMTP TLS relay docker [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image") based image with multiple (possible) use cases.
+A simple [Postfix](https://www.postfix.org/ "Postfix Homepage") SMTP TLS relay [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image") based image with multiple use cases. DOCKERIZED!
 
 This image supports inbound TLS (STARTTLS/SMTPS) and optional SASL authentication for clients, with multiple configurable security modes (IP based, authentication based or mTLS).
 

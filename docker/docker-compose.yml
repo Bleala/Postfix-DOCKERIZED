@@ -18,7 +18,7 @@ secrets:
     file: /path/to/your/secret/file/smtpd_auth_username
 
 services:
-  # Postfix SMTP Relay - Simple Postfix SMTP TLS relay docker alpine based image with multiple (possible) use cases.
+  # Postfix - Simple Postfix SMTP TLS relay alpine based image with multiple use cases. DOCKERIZED!
   # https://hub.docker.com/r/bleala/postfix
   # https://github.com/Bleala/Postfix-DOCKERIZED
   postfix:
