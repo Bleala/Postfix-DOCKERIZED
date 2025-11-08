@@ -418,7 +418,8 @@ then
     then
       echo "Processing users from file."
       # Read file line by line
-      while IFS= read -r line
+      # Handle the last line if it's missing a trailing newline character.
+      while IFS= read -r line || [[ -n "${line}" ]]
       do
         process_sasl_user "${line}"
       done < "${SMTPD_AUTH_USERS_FILE}"
