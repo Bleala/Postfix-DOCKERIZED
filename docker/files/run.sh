@@ -81,11 +81,11 @@ process_sasl_user() {
   then
     # Clients will need to authenticate as 'username@domain'
     echo "Creating SASL user \"${user}@${DOMAIN}\"."
-    echo "${pass}" | saslpasswd2 -c -p -u "${DOMAIN}" -f /etc/postfix/sasldb2 "${user}"
+    printf "%s" "${pass}" | saslpasswd2 -c -p -u "${DOMAIN}" -f /etc/postfix/sasldb2 "${user}"
   else
     # Clients will need to authenticate as 'username' (without domain)
     echo "Creating SASL user \"${user}\"."
-    echo "${pass}" | saslpasswd2 -c -p -f /etc/postfix/sasldb2 "${user}"
+    printf "%s" "${pass}" | saslpasswd2 -c -p -f /etc/postfix/sasldb2 "${user}"
   fi
   
   # Mark that least one user has been added
