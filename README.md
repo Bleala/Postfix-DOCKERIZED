@@ -38,8 +38,8 @@ There will always be two different versions:
 
 | Tag | Content |
 | ------------- |:-------------:|
-| Latest    | Contains the latest stable version |
-| x.x.x     | Contains the Postfix and Alpine versions mentioned at the bottom of the page and in the release notes |
+| Latest | Contains the latest stable version |
+| x.x.x | Contains the Postfix and Alpine versions mentioned at the bottom of the page and in the release notes |
 
 I am using semantic versioning for this image. For all supported architectures there are the following versioned tags:
 
@@ -385,42 +385,42 @@ If you need troubleshooting the container you can set the environment variable `
 You can set fifteen different environment variables if you want to:
 
 | **Variable** | **Info** | **Value** |
-|:----:|:----:|:----:|
-|   `SERVER_HOSTNAME`   |   Server hostname for the Postfix container. <br> Emails will appear to come from the hostnames domain.   |   Mandatory, default to `unset`   |
-|   `SMTP_SERVER`   |   Server address of the SMTP server to use.   |   Mandatory, default to `unset`  |
-|   `SMTP_PORT`   |   Port address of the SMTP server to use.   |   Optional, default value is `587`   |
-|   `SMTP_USERNAME`   |   Username to authenticate with to SMTP_SERVER. <br> If `SMTP_USERNAME_FILE` is set, not needed.   |   Optional, default to `unset`   |
-|   `SMTP_PASSWORD`   |   Password of the SMTP user. <br> If `SMTP_PASSWORD_FILE` is set, not needed.   |   Mandatory, if `SMTP_USERNAME` is set <br> Default to `unset`   |
-|   `SMTP_USERNAME_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtp_username`.   |   Optional, default to `unset`   |
-|   `SMTP_PASSWORD_FILE`   |   Setting this to a mounted file containing the password, to avoid passwords in env variables. <br> Used like `-e SMTP_PASSWORD_FILE=/run/secrets/smtp_username`.   |   Optional, default to `unset`   |
-|   `SMTP_TLS_CA_FILE`   |   Path to a file (PEM) containing trusted CAs for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`.   |   Optional, default to `unset`   |
-|   `SMTP_TLS_CA_PATH`   |   Path to a directory containing trusted CAs (PEM) for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`.   |   Optional, default to `unset`   |
-|   `SMTP_NETWORKS`   |   Setting this will allow you to add additional, comma seperated, subnets to use the relay for. <br> Used like `SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'`.   |   Optional, default to `unset`   |
-|   `SMTPD_AUTH_MODE`   |   Set the security mode for inbound relaying.   |   Optional, default to `mynetworks_only` <br> Can be `mynetworks_only`, `sasl_only`, `ip_or_sasl`, `ip_and_sasl`, `mtls_only` or `ip_and_mtls`   |
-|   `SMTPD_AUTH_USERS_FILE`   |   Path to a file (e.g., Docker Secret) containing SASL users. <br> Format: `user:password`, one per line. <br> Takes priority over `SMTPD_AUTH_USERS`.   |   Optional, default to `unset`   |
-|   `SMTPD_AUTH_USERS`   |   Multi-line string containing SASL users. <br> Format: `user:password`, one per line. <br> Used if `SMTPD_AUTH_USERS_FILE` is not set.   |   Optional, default to `unset`   |
-|   `SMTPD_AUTH_APPEND_DOMAIN`   |   Set to `no` to create the SASL user without appending the domain (`username` instead of `username@domain.com`).   |   Optional, default to `yes`   |
-|   `SMTPD_AUTH_USERNAME`   |   Username for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_USERNAME_FILE` is used. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
-|   `SMTPD_AUTH_PASSWORD`   |   Password for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_PASSWORD_FILE` is used.   |   Optional, default to `unset` <br> Mandatory for SASL modes   |
-|   `SMTPD_AUTH_USERNAME_FILE`   |   Setting this to a mounted file containing the inbound username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME.   |   Optional, default to `unset`   |
-|   `SMTPD_AUTH_PASSWORD_FILE`   |   Setting this to a mounted file containing the inbound password, to avoid passwords in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`.   |   Optional, default to `unset`   |
-|   `SMTPD_TLS_ENABLED`   |   Set to `yes` to enable inbound TLS. <br> Port 25 (SMTP, opportunistic STARTTLS), Port 465 (SMTPS, implicit TLS) and Port 587 (Submission, STARTTLS).   |   Optional, default to `no`   |
-|   `SMTPD_TLS_FORCED`   |   Set to `yes` to force *global* TLS encryption (smtpd_tls_security_level=encrypt). <br> This will break clients on Port 25 that do not support STARTTLS.   |   Optional, default to `no`   |
-|   `SMTPD_TLS_CHAIN_FILE`   |   Path inside the container to your combined TLS chain file. <br> This file MUST contain (in this order): 1. Private Key, 2. Server Certificate, 3. Intermediate CA(s). <br> Can be multiple keys/certs combined in one file.   |   Optional, default to `/etc/postfix/certs/chain.pem` <br> Mandatory if `SMTPD_TLS_ENABLED` is `yes`   |
-|   `SMTPD_TLS_CA_FILE`   |   Path to a file containing trusted CAs (PEM format) for verifying client certificates (mTLS). <br> Use either `SMTPD_TLS_CA_FILE` or `SMTPD_TLS_CA_PATH`.   |   Optional, default to `unset` <br> Mandatory for mTLS modes   |
-|   `SMTPD_TLS_CA_PATH`   |   Path to a directory containing trusted CAs (PEM format) for verifying client certificates (mTLS). <br> Use either `SMTPD_TLS_CA_FILE` or `SMTPD_TLS_CA_PATH`.   |   Optional, default to `unset` <br> Mandatory for mTLS modes   |
-|   `TLS_HARDENING_ENABLED`   |   Set to `yes` to enable modern TLS hardening. <br> force TLSv1.2+, high ciphers, server preference, authentication only over TLS.   |   Optional, default to `no`   |
-|   `SMTPD_CLIENT_CONN_RATE_LIMIT`   |   Max connections per minute from the same client.   |   Optional, default to `unset`   |
-|   `SMTPD_CLIENT_MSG_RATE_LIMIT`   |   Max messages per minute from the same client.   |   Optional, default to `unset`   |
-|   `SMTPD_CLIENT_RCPT_RATE_LIMIT`   |   Max recipients per minute from the same client.   |   Optional, default to `unset`   |
-|   `DEBUG`   |   To enable debug logging.   |   Optional, default to `no`   |
-|   `SMTP_HEADER_TAG`   |   This will add a header for tracking messages upstream <br> Helpful for spam filters. <br> Will appear as `"RelayTag: ${SMTP_HEADER_TAG}"` in the email headers.   |   Optional, default to `unset`   |
-|   `ALWAYS_ADD_MISSING_HEADERS`   |   This is related to the [always\_add\_missing\_headers](http://www.postfix.org/postconf.5.html#always_add_missing_headers) Postfix option. <br> If set to `yes`, Postfix will always add missing headers among `From:`, `To:`, `Date:` or `Message-ID:`.   |   Optional, default to `no`   |
-|   `OVERWRITE_FROM`   |   This will rewrite the from address overwriting it with the specified address for all email being relayed. <br> Example settings: <br> OVERWRITE_FROM=<email@company.com> <br> OVERWRITE_FROM="Your Name" <email@company.com>   |   Optional, default to `unset`   |
-|   `DESTINATION`   |   This will define a domain for which incoming messages will be accepted. <br> To set a custom `$mydestination` value.   |   Optional, default to `unset`   |
-|   `LOG_SUBJECT`   |   This will output the subject line of messages in the log.   |   Optional, default to `unset`   |
-|   `SMTPUTF8_ENABLE`   |   Set to `yes` to enable or `no` to disable support for SMTPUTF8. <br> Not setting this variable will use the postfix default, which is `yes`.   |   Optional, default to `unset`   |
-|   `MESSAGE_SIZE_LIMIT`   |   This will change the default limit of 10240000 bytes (10MB). <br> This will allow you to set a custom `$message_size_limit` value.   |   Optional, default to `10485760`   |
+| :----: | :----: | :----: |
+| `SERVER_HOSTNAME` | Server hostname for the Postfix container. <br> Emails will appear to come from the hostnames domain. | Mandatory, default to `unset` |
+| `SMTP_SERVER` | Server address of the SMTP server to use. | Mandatory, default to `unset`  |
+| `SMTP_PORT` | Port address of the SMTP server to use. | Optional, default value is `587` |
+| `SMTP_USERNAME` | Username to authenticate with to SMTP_SERVER. <br> If `SMTP_USERNAME_FILE` is set, not needed. | Optional, default to `unset` |
+| `SMTP_PASSWORD` | Password of the SMTP user. <br> If `SMTP_PASSWORD_FILE` is set, not needed. | Mandatory, if `SMTP_USERNAME` is set <br> Default to `unset` |
+| `SMTP_USERNAME_FILE` | Setting this to a mounted file containing the username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtp_username`. | Optional, default to `unset` |
+| `SMTP_PASSWORD_FILE` | Setting this to a mounted file containing the password, to avoid passwords in env variables. <br> Used like `-e SMTP_PASSWORD_FILE=/run/secrets/smtp_username`. | Optional, default to `unset` |
+| `SMTP_TLS_CA_FILE` | Path to a file (PEM) containing trusted CAs for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`. | Optional, default to `unset` |
+| `SMTP_TLS_CA_PATH` | Path to a directory containing trusted CAs (PEM) for verifying the OUTBOUND server (SMTP_SERVER). <br> Use either `SMTP_TLS_CA_FILE` or `SMTP_TLS_CA_PATH`. | Optional, default to `unset` |
+| `SMTP_NETWORKS` | Setting this will allow you to add additional, comma seperated, subnets to use the relay for. <br> Used like `SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'`. | Optional, default to `unset` |
+| `SMTPD_AUTH_MODE` | Set the security mode for inbound relaying. | Optional, default to `mynetworks_only` <br> Can be `mynetworks_only`, `sasl_only`, `ip_or_sasl`, `ip_and_sasl`, `mtls_only` or `ip_and_mtls` |
+| `SMTPD_AUTH_USERS_FILE` | Path to a file (e.g., Docker Secret) containing SASL users. <br> Format: `user:password`, one per line. <br> Takes priority over `SMTPD_AUTH_USERS`. | Optional, default to `unset` |
+| `SMTPD_AUTH_USERS` | Multi-line string containing SASL users. <br> Format: `user:password`, one per line. <br> Used if `SMTPD_AUTH_USERS_FILE` is not set. | Optional, default to `unset` |
+| `SMTPD_AUTH_APPEND_DOMAIN` | Set to `no` to create the SASL user without appending the domain (`username` instead of `username@domain.com`). | Optional, default to `yes` |
+| `SMTPD_AUTH_USERNAME` | Username for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_USERNAME_FILE` is used. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME. | Optional, default to `unset` <br> Mandatory for SASL modes |
+| `SMTPD_AUTH_PASSWORD` | Password for inbound SASL authentication. <br> Not needed if `SMTPD_AUTH_PASSWORD_FILE` is used. | Optional, default to `unset` <br> Mandatory for SASL modes |
+| `SMTPD_AUTH_USERNAME_FILE` | Setting this to a mounted file containing the inbound username, to avoid usernames in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`. <br> Set without FQDN, as DOMAIN is appended automatically from SERVER_HOSTNAME. | Optional, default to `unset` |
+| `SMTPD_AUTH_PASSWORD_FILE` | Setting this to a mounted file containing the inbound password, to avoid passwords in env variables. <br> Used like `-e SMTP_USERNAME_FILE=/run/secrets/smtpd_auth_username`. | Optional, default to `unset` |
+| `SMTPD_TLS_ENABLED` | Set to `yes` to enable inbound TLS. <br> Port 25 (SMTP, opportunistic STARTTLS), Port 465 (SMTPS, implicit TLS) and Port 587 (Submission, STARTTLS). | Optional, default to `no` |
+| `SMTPD_TLS_FORCED` | Set to `yes` to force *global* TLS encryption (smtpd_tls_security_level=encrypt). <br> This will break clients on Port 25 that do not support STARTTLS. | Optional, default to `no` |
+| `SMTPD_TLS_CHAIN_FILE` | Path inside the container to your combined TLS chain file. <br> This file MUST contain (in this order): 1. Private Key, 2. Server Certificate, 3. Intermediate CA(s). <br> Can be multiple keys/certs combined in one file. | Optional, default to `/etc/postfix/certs/chain.pem` <br> Mandatory if `SMTPD_TLS_ENABLED` is `yes` |
+| `SMTPD_TLS_CA_FILE` | Path to a file containing trusted CAs (PEM format) for verifying client certificates (mTLS). <br> Use either `SMTPD_TLS_CA_FILE` or `SMTPD_TLS_CA_PATH`. | Optional, default to `unset` <br> Mandatory for mTLS modes |
+| `SMTPD_TLS_CA_PATH` | Path to a directory containing trusted CAs (PEM format) for verifying client certificates (mTLS). <br> Use either `SMTPD_TLS_CA_FILE` or `SMTPD_TLS_CA_PATH`. | Optional, default to `unset` <br> Mandatory for mTLS modes |
+| `TLS_HARDENING_ENABLED` | Set to `yes` to enable modern TLS hardening. <br> force TLSv1.2+, high ciphers, server preference, authentication only over TLS. | Optional, default to `no` |
+| `SMTPD_CLIENT_CONN_RATE_LIMIT` | Max connections per minute from the same client. | Optional, default to `unset` |
+| `SMTPD_CLIENT_MSG_RATE_LIMIT` | Max messages per minute from the same client. | Optional, default to `unset` |
+| `SMTPD_CLIENT_RCPT_RATE_LIMIT` | Max recipients per minute from the same client. | Optional, default to `unset` |
+| `DEBUG` | To enable debug logging. | Optional, default to `no` |
+| `SMTP_HEADER_TAG` | This will add a header for tracking messages upstream <br> Helpful for spam filters. <br> Will appear as `"RelayTag: ${SMTP_HEADER_TAG}"` in the email headers. | Optional, default to `unset` |
+| `ALWAYS_ADD_MISSING_HEADERS` | This is related to the [always\_add\_missing\_headers](http://www.postfix.org/postconf.5.html#always_add_missing_headers) Postfix option. <br> If set to `yes`, Postfix will always add missing headers among `From:`, `To:`, `Date:` or `Message-ID:`. | Optional, default to `no` |
+| `OVERWRITE_FROM` | This will rewrite the from address overwriting it with the specified address for all email being relayed. <br> Example settings: <br> OVERWRITE_FROM=<email@company.com> <br> OVERWRITE_FROM="Your Name" <email@company.com> | Optional, default to `unset` |
+| `DESTINATION` | This will define a domain for which incoming messages will be accepted. <br> To set a custom `$mydestination` value. | Optional, default to `unset` |
+| `LOG_SUBJECT` | This will output the subject line of messages in the log. | Optional, default to `unset` |
+| `SMTPUTF8_ENABLE` | Set to `yes` to enable or `no` to disable support for SMTPUTF8. <br> Not setting this variable will use the postfix default, which is `yes`. | Optional, default to `unset` |
+| `MESSAGE_SIZE_LIMIT` | This will change the default limit of 10240000 bytes (10MB). <br> This will allow you to set a custom `$message_size_limit` value. | Optional, default to `10485760` |
 
 ---
 

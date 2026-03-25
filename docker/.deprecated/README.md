@@ -35,8 +35,8 @@ There will always be two different versions:
 
 | Tag | Content |
 | ------------- |:-------------:|
-| Latest    | Contains the latest stable version |
-| x.x.x     | Contains the Postfix and Alpine versions mentioned at the bottom of the page and in the release notes |
+| Latest | Contains the latest stable version |
+| x.x.x | Contains the Postfix and Alpine versions mentioned at the bottom of the page and in the release notes |
 
 I am using semantic versioning for this image. For all supported architectures there are the following versioned tags:
 
@@ -232,22 +232,22 @@ If you need troubleshooting the container you can set the environment variable `
 You can set fifteen different environment variables if you want to:
 
 | **Variable** | **Info** | **Value** |
-|:----:|:----:|:----:|
-|   `SMTP_SERVER`   |   Server address of the SMTP server to use   |   Mandatory, default to `unset`  |
-|   `SERVER_HOSTNAME`   |   Server hostname for the Postfix container <br> Emails will appear to come from the hostname's domain   |   Mandatory, default to `unset`   |
-|   `SMTP_PORT`   |   Port address of the SMTP server to use   |   Optional, default value is `587`   |
-|   `SMTP_USERNAME`   |   Username to authenticate with   |   Optional, default to `unset`   |
-|   `SMTP_PASSWORD`   |   Password of the SMTP user <br> If `SMTP_PASSWORD_FILE` is set, not needed   |   Mandatory, if `SMTP_USERNAME` is set <br> Default to `unset`   |
-|   `SMTP_HEADER_TAG`   |   This will add a header for tracking messages upstream <br> Helpful for spam filters <br> Will appear as "RelayTag: ${SMTP_HEADER_TAG}" in the email headers   |   Optional, default to `unset`   |
-|   `SMTP_NETWORKS`   |   Setting this will allow you to add additional, comma seperated, subnets to use the relay <br> Used like `-e SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'`   |   Optional, default to `unset`   |
-|   `SMTP_USERNAME_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_USERNAME_FILE=/secrets/smtp_username`   |   Optional, default to `unset`   |
-|   `SMTP_PASSWORD_FILE`   |   Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_PASSWORD_FILE=/secrets/smtp_username`   |   Optional, default to `unset`   |
-|   `ALWAYS_ADD_MISSING_HEADERS`   |   This is related to the [always\_add\_missing\_headers](http://www.postfix.org/postconf.5.html#always_add_missing_headers) Postfix option <br> If set to `yes`, Postfix will always add missing headers among `From:`, `To:`, `Date:` or `Message-ID:`   |   Optional, default to `no`   |
-|   `OVERWRITE_FROM`   |   This will rewrite the from address overwriting it with the specified address for all email being relayed <br> Example settings: <br> OVERWRITE_FROM=<email@company.com> <br> OVERWRITE_FROM="Your Name" <email@company.com>   |   Optional, default to `unset`   |
-|   `DESTINATION`   |   This will define a list of domains from which incoming messages will be accepted   |   Optional, default to `unset`   |
-|   `LOG_SUBJECT`   |   This will output the subject line of messages in the log   |   Optional, default to `no`   |
-|   `SMTPUTF8_ENABLE`   |   This will enable or disable support for SMTPUTF8 <br> Valid values are `no` to disable and `yes` to enable <br> Not setting this variable will use the postfix default, which is `yes`.   |   Optional, default to `yes`   |
-|   `MESSAGE_SIZE_LIMIT`   |   This will change the default limit of 10240000 bytes (10MB)   |   Optional, default to `10240000`   |
+| :----: | :----: | :----: |
+| `SMTP_SERVER` | Server address of the SMTP server to use | Mandatory, default to `unset`  |
+| `SERVER_HOSTNAME` | Server hostname for the Postfix container <br> Emails will appear to come from the hostname's domain | Mandatory, default to `unset` |
+| `SMTP_PORT` | Port address of the SMTP server to use | Optional, default value is `587` |
+| `SMTP_USERNAME` | Username to authenticate with | Optional, default to `unset` |
+| `SMTP_PASSWORD` | Password of the SMTP user <br> If `SMTP_PASSWORD_FILE` is set, not needed | Mandatory, if `SMTP_USERNAME` is set <br> Default to `unset` |
+| `SMTP_HEADER_TAG` | This will add a header for tracking messages upstream <br> Helpful for spam filters <br> Will appear as "RelayTag: ${SMTP_HEADER_TAG}" in the email headers | Optional, default to `unset` |
+| `SMTP_NETWORKS` | Setting this will allow you to add additional, comma seperated, subnets to use the relay <br> Used like `-e SMTP_NETWORKS='xxx.xxx.xxx.xxx/xx,xxx.xxx.xxx.xxx/xx'` | Optional, default to `unset` |
+| `SMTP_USERNAME_FILE` | Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_USERNAME_FILE=/secrets/smtp_username` | Optional, default to `unset` |
+| `SMTP_PASSWORD_FILE` | Setting this to a mounted file containing the username, to avoid usernames in env variables <br> Used like `-e SMTP_PASSWORD_FILE=/secrets/smtp_username` | Optional, default to `unset` |
+| `ALWAYS_ADD_MISSING_HEADERS` | This is related to the [always\_add\_missing\_headers](http://www.postfix.org/postconf.5.html#always_add_missing_headers) Postfix option <br> If set to `yes`, Postfix will always add missing headers among `From:`, `To:`, `Date:` or `Message-ID:` | Optional, default to `no` |
+| `OVERWRITE_FROM` | This will rewrite the from address overwriting it with the specified address for all email being relayed <br> Example settings: <br> OVERWRITE_FROM=<email@company.com> <br> OVERWRITE_FROM="Your Name" <email@company.com> | Optional, default to `unset` |
+| `DESTINATION` | This will define a list of domains from which incoming messages will be accepted | Optional, default to `unset` |
+| `LOG_SUBJECT` | This will output the subject line of messages in the log | Optional, default to `no` |
+| `SMTPUTF8_ENABLE` | This will enable or disable support for SMTPUTF8 <br> Valid values are `no` to disable and `yes` to enable <br> Not setting this variable will use the postfix default, which is `yes`. | Optional, default to `yes` |
+| `MESSAGE_SIZE_LIMIT` | This will change the default limit of 10240000 bytes (10MB) | Optional, default to `10240000` |
 
 ---
 
