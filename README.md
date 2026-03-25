@@ -4,6 +4,7 @@
 [![Docker Stars](https://img.shields.io/docker/stars/bleala/postfix?style=flat-square&label=Docker%20Stars)](https://hub.docker.com/r/bleala/postfix/)
 [![Docker Pulls](https://img.shields.io/docker/pulls/bleala/postfix?style=flat-square&label=Docker%20Pulls)](https://hub.docker.com/r/bleala/postfix/)
 [![Container Build Check 🐳✅](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml/badge.svg)](https://github.com/Bleala/Postfix-DOCKERIZED/actions/workflows/container-build-check.yaml)
+[![Signed by: Sigstore/Cosign](https://img.shields.io/badge/Signed_by-Sigstore%2FCosign-blue?style=flat&logo=sigstore&logoColor=white)](https://github.com/sigstore/cosign)
 
 A simple [Postfix](https://www.postfix.org/ "Postfix Homepage") SMTP TLS relay [Alpine Linux](https://hub.docker.com/_/alpine "Alpine Linux Image") based image with multiple use cases. DOCKERIZED!
 
