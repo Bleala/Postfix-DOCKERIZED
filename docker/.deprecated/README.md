@@ -34,7 +34,7 @@ I built this image based on [Alpine Linux](https://hub.docker.com/_/alpine "Alpi
 There will always be two different versions:
 
 | Tag | Content |
-| ------------- |:-------------:|
+| ------------- | :-------------: |
 | Latest | Contains the latest stable version |
 | x.x.x | Contains the Postfix and Alpine versions mentioned at the bottom of the page and in the release notes |
 
@@ -233,7 +233,7 @@ You can set fifteen different environment variables if you want to:
 
 | **Variable** | **Info** | **Value** |
 | :----: | :----: | :----: |
-| `SMTP_SERVER` | Server address of the SMTP server to use | Mandatory, default to `unset`  |
+| `SMTP_SERVER` | Server address of the SMTP server to use | Mandatory, default to `unset` |
 | `SERVER_HOSTNAME` | Server hostname for the Postfix container <br> Emails will appear to come from the hostname's domain | Mandatory, default to `unset` |
 | `SMTP_PORT` | Port address of the SMTP server to use | Optional, default value is `587` |
 | `SMTP_USERNAME` | Username to authenticate with | Optional, default to `unset` |
