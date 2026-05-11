@@ -1,27 +1,41 @@
-# Global Arguments
-ARG ALPINE_VERSION="3.22.2" \
-    IMAGE_VERSION="1.1.0" \
-    POSTFIX_VERSION="3.10.5"
+# Global variables
+ARG ALPINE_VERSION="3.23.4" \
+    IMAGE_VERSION="1.1.1" \
+    POSTFIX_VERSION="3.10.9"
 
-# Alpine Base Image
+# -----------------------------------------------------------------------------------------------
+
+# Set Alpine as the base image
 FROM alpine:${ALPINE_VERSION} AS postfix
 
-# Set arguments
+# Build arguments
 ARG ALPINE_VERSION \
     IMAGE_VERSION \
     POSTFIX_VERSION
 
+# Set shell options
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
+# Set environment variables
+    # Set Timezone
+ENV TZ="Europe/Vienna"
+
+# Healthcheck to ensure Postfix master process is running
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
+  CMD ["/files/scripts/healthcheck.sh"]
+
 # Install packages and dependencies
-RUN apk update && \
-    apk add --no-cache \
-      apk-tools=~2.14.9 \
-      bash=~5.2.37 \
-      gawk=~5.3.2 \
-      cyrus-sasl=~2.1.28 \
-      cyrus-sasl-login=~2.1.28 \
-      cyrus-sasl-crammd5=~2.1.28 \
-      mailx=~8.1.2 \
-      postfix=~3.10.5 && \
+RUN apk add --no-cache \
+      apk-tools \
+      bash \
+      cyrus-sasl \
+      cyrus-sasl-crammd5 \
+      cyrus-sasl-login \
+      gawk \
+      mailx \
+      postfix \
+      # Tini as a minimal init system to handle signal processing
+      tini && \
     # Create log directories
     mkdir -p /var/log/supervisor/ /var/run/supervisor/ && \
     # Allow all interfaces
@@ -30,18 +44,11 @@ RUN apk update && \
     newaliases
 
 # Copy Files
-COPY files /files
-
-# Make start script executable
-RUN chmod +x /files/run.sh
+COPY --chmod=755 files /files
 
 # Set build date argument here, because caching would break otherwise
 # It is set during the build process in the reusable workflow
 ARG BUILD_DATE
-
-# Healthcheck to ensure Postfix master process is running
-HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
-  CMD postfix status
 
 # Set labels
 LABEL org.opencontainers.image.authors="Bleala" \
@@ -50,8 +57,8 @@ LABEL org.opencontainers.image.authors="Bleala" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.title="Postfix-DOCKERIZED" \
       org.opencontainers.image.description="Postfix - a simple SMTP TLS relay with multiple (possible) use cases. DOCKERIZED!" \
-      org.opencontainers.image.documentation="https://unbound.docs.nlnetlabs.nl/en/latest/" \
-      org.opencontainers.image.url="https://github.com/Bleala/Postfix-DOCKERIZED" \
+      org.opencontainers.image.documentation="https://www.postfix.org/documentation.html" \
+      org.opencontainers.image.url="https://hub.docker.com/r/bleala/postfix" \
       org.opencontainers.image.source="https://github.com/Bleala/Postfix-DOCKERIZED"
 
 # Expose Postfix Ports
@@ -60,6 +67,5 @@ LABEL org.opencontainers.image.authors="Bleala" \
 # Port 587: Submission (STARTTLS)
 EXPOSE 25 465 587
 
-# Cmd to run
-CMD ["/files/run.sh"]
-#ENTRYPOINT ["/files/run.sh"]
+# Run start script
+ENTRYPOINT ["/sbin/tini", "--", "/bin/bash", "/files/scripts/start.sh"]

@@ -449,6 +449,16 @@ docker pull bleala/postfix:latest
 
 ## Versions
 
+**1.1.1 - 11.05.2026:**
+
+* Update Postfix to 3.10.9
+* Update Alpine to 3.23.4
+
+**Current Versions:**<br>
+
+* Postfix 3.10.9
+* Alpine 3.23.4
+
 **1.1.0 - 03.11.2025:**
 
 * Inbound TLS (Implicit TLS or STARTTLS) Support
@@ -461,10 +471,6 @@ docker pull bleala/postfix:latest
 * Expose port 465 (SMTPS) and 587 (Submission)
 * Postfix Version: 3.10.5
 * Alpine Version: 3.22.2
-
-**Current Versions:**<br>
-
-* Postfix 3.10.5, Alpine 3.22.2
 
 <details>
 <summary>Old Version History</summary><br>
