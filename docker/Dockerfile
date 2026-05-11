@@ -1,7 +1,7 @@
 # Global Arguments
-ARG ALPINE_VERSION="3.22.2" \
-    IMAGE_VERSION="1.1.0" \
-    POSTFIX_VERSION="3.10.5"
+ARG ALPINE_VERSION="3.23.4" \
+    IMAGE_VERSION="1.1.1" \
+    POSTFIX_VERSION="3.10.9"
 
 # Alpine Base Image
 FROM alpine:${ALPINE_VERSION} AS postfix
@@ -11,17 +11,23 @@ ARG ALPINE_VERSION \
     IMAGE_VERSION \
     POSTFIX_VERSION
 
+# Set shell options
+SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
+
+# Healthcheck to ensure Postfix master process is running
+HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
+  CMD postfix status
+
 # Install packages and dependencies
-RUN apk update && \
-    apk add --no-cache \
-      apk-tools=~2.14.9 \
-      bash=~5.2.37 \
-      gawk=~5.3.2 \
-      cyrus-sasl=~2.1.28 \
-      cyrus-sasl-login=~2.1.28 \
-      cyrus-sasl-crammd5=~2.1.28 \
-      mailx=~8.1.2 \
-      postfix=~3.10.5 && \
+RUN apk add --no-cache \
+      apk-tools \
+      bash \
+      gawk \
+      cyrus-sasl \
+      cyrus-sasl-login \
+      cyrus-sasl-crammd5 \
+      mailx \
+      postfix && \
     # Create log directories
     mkdir -p /var/log/supervisor/ /var/run/supervisor/ && \
     # Allow all interfaces
@@ -30,18 +36,11 @@ RUN apk update && \
     newaliases
 
 # Copy Files
-COPY files /files
-
-# Make start script executable
-RUN chmod +x /files/run.sh
+COPY --chmod=755 files /files
 
 # Set build date argument here, because caching would break otherwise
 # It is set during the build process in the reusable workflow
 ARG BUILD_DATE
-
-# Healthcheck to ensure Postfix master process is running
-HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
-  CMD postfix status
 
 # Set labels
 LABEL org.opencontainers.image.authors="Bleala" \
