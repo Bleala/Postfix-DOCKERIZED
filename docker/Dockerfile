@@ -1,12 +1,14 @@
-# Global Arguments
+# Global variables
 ARG ALPINE_VERSION="3.23.4" \
     IMAGE_VERSION="1.1.1" \
     POSTFIX_VERSION="3.10.9"
 
-# Alpine Base Image
+# -----------------------------------------------------------------------------------------------
+
+# Set Alpine as the base image
 FROM alpine:${ALPINE_VERSION} AS postfix
 
-# Set arguments
+# Build arguments
 ARG ALPINE_VERSION \
     IMAGE_VERSION \
     POSTFIX_VERSION
@@ -14,20 +16,26 @@ ARG ALPINE_VERSION \
 # Set shell options
 SHELL ["/bin/ash", "-eo", "pipefail", "-c"]
 
+# Set environment variables
+    # Set Timezone
+ENV TZ="Europe/Vienna"
+
 # Healthcheck to ensure Postfix master process is running
 HEALTHCHECK --interval=10s --timeout=5s --start-period=15s --retries=3 \
-  CMD postfix status
+  CMD ["/files/scripts/healthcheck.sh"]
 
 # Install packages and dependencies
 RUN apk add --no-cache \
       apk-tools \
       bash \
-      gawk \
       cyrus-sasl \
-      cyrus-sasl-login \
       cyrus-sasl-crammd5 \
+      cyrus-sasl-login \
+      gawk \
       mailx \
-      postfix && \
+      postfix \
+      # Tini as a minimal init system to handle signal processing
+      tini && \
     # Create log directories
     mkdir -p /var/log/supervisor/ /var/run/supervisor/ && \
     # Allow all interfaces
@@ -49,8 +57,8 @@ LABEL org.opencontainers.image.authors="Bleala" \
       org.opencontainers.image.created="${BUILD_DATE}" \
       org.opencontainers.image.title="Postfix-DOCKERIZED" \
       org.opencontainers.image.description="Postfix - a simple SMTP TLS relay with multiple (possible) use cases. DOCKERIZED!" \
-      org.opencontainers.image.documentation="https://unbound.docs.nlnetlabs.nl/en/latest/" \
-      org.opencontainers.image.url="https://github.com/Bleala/Postfix-DOCKERIZED" \
+      org.opencontainers.image.documentation="https://www.postfix.org/documentation.html" \
+      org.opencontainers.image.url="https://hub.docker.com/r/bleala/postfix" \
       org.opencontainers.image.source="https://github.com/Bleala/Postfix-DOCKERIZED"
 
 # Expose Postfix Ports
@@ -59,6 +67,5 @@ LABEL org.opencontainers.image.authors="Bleala" \
 # Port 587: Submission (STARTTLS)
 EXPOSE 25 465 587
 
-# Cmd to run
-CMD ["/files/run.sh"]
-#ENTRYPOINT ["/files/run.sh"]
+# Run start script
+ENTRYPOINT ["/sbin/tini", "--", "/bin/bash", "/files/scripts/start.sh"]
