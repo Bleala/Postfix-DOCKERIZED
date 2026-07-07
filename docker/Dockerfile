@@ -1,7 +1,7 @@
 # Global variables
-ARG ALPINE_VERSION="3.23.4" \
-    IMAGE_VERSION="1.1.1" \
-    POSTFIX_VERSION="3.10.9"
+ARG ALPINE_VERSION="3.24.1" \
+    IMAGE_VERSION="1.1.2" \
+    POSTFIX_VERSION="3.11.4"
 
 # -----------------------------------------------------------------------------------------------
 
