@@ -14,7 +14,7 @@ This image supports inbound TLS (STARTTLS/SMTPS) and optional SASL authenticatio
 
 **Disclaimer:** I am just the maintainer of this docker container, I did not write the software. Visit the [Official Homepage](https://www.postfix.org/ "Postfix Homepage") to thank the author(s)! :)
 
-**Info:** I originally forked this repositofy from [Juan Luis Baptiste](https://github.com/juanluisbaptiste/ "Juan Luis Baptiste"). Thank you for your work! :)
+**Info:** I originally forked this repository from [Juan Luis Baptiste](https://github.com/juanluisbaptiste/ "Juan Luis Baptiste"). Thank you for your work! :)
 
 What is Postfix? It is Wietse Venema's mail server that started life at IBM research as an alternative to the widely-used Sendmail program. After eight years at Google, Wietse continues to maintain Postfix.
 
